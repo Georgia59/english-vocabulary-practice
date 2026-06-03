@@ -51,8 +51,8 @@
       margin: 0;
       min-height: 100vh;
       font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.7;
+      font-size: 15px;
+      line-height: 1.6;
       background:
         radial-gradient(circle at top left, rgba(204, 106, 74, .08), transparent 32rem),
         linear-gradient(180deg, var(--bg), var(--bg-soft));
@@ -64,8 +64,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      padding: 22px clamp(18px, 4vw, 56px);
+      gap: 12px;
+      padding: 16px clamp(16px, 4vw, 44px);
       border-bottom: 1px solid var(--line);
       background: color-mix(in srgb, var(--bg) 88%, transparent);
       backdrop-filter: blur(18px);
@@ -76,7 +76,7 @@
     h1 {
       margin: 0;
       font-family: var(--font-display);
-      font-size: clamp(24px, 3vw, 36px);
+      font-size: clamp(21px, 2.4vw, 30px);
       font-weight: 500;
       letter-spacing: 0;
     }
@@ -88,17 +88,17 @@
     }
     .top-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     main {
-      width: min(1080px, 100%);
+      width: min(1120px, 100%);
       margin: 0 auto;
-      padding: clamp(24px, 5vw, 52px) clamp(16px, 4vw, 36px) 56px;
+      padding: clamp(18px, 3vw, 34px) clamp(14px, 3vw, 28px) 40px;
     }
     .screen { display: none; }
     .screen.active { display: block; }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
     }
     .tile, .card, .panel {
       background: color-mix(in srgb, var(--panel) 94%, var(--bg));
@@ -107,8 +107,8 @@
       box-shadow: var(--shadow);
     }
     .tile {
-      min-height: 112px;
-      padding: 22px;
+      min-height: 88px;
+      padding: 16px;
       text-align: left;
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease, transform .18s ease;
@@ -121,26 +121,26 @@
     .tile strong {
       display: block;
       font-family: var(--font-display);
-      font-size: 24px;
+      font-size: 21px;
       font-weight: 500;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
     .tile span, .muted { color: var(--muted); }
     .panel {
-      padding: clamp(18px, 3vw, 28px);
-      margin-bottom: 20px;
+      padding: clamp(14px, 2.2vw, 20px);
+      margin-bottom: 14px;
     }
     .toolbar {
       display: flex;
-      gap: 14px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
     }
     .segmented {
       display: inline-flex;
-      gap: 6px;
-      padding: 5px;
+      gap: 4px;
+      padding: 4px;
       border: 1px solid var(--line);
       border-radius: 12px;
       background: var(--panel-2);
@@ -151,10 +151,10 @@
       background: var(--panel);
       color: var(--text);
       border-radius: 10px;
-      padding: 10px 15px;
-      min-height: 44px;
+      padding: 8px 12px;
+      min-height: 38px;
       font: inherit;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.2;
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
@@ -190,66 +190,66 @@
       outline-offset: 2px;
     }
     .study-card {
-      min-height: 320px;
-      padding: clamp(24px, 4vw, 42px);
+      min-height: 245px;
+      padding: clamp(18px, 3vw, 28px);
       display: grid;
       align-content: center;
-      gap: 22px;
-      scroll-margin-top: 118px;
+      gap: 14px;
+      scroll-margin-top: 92px;
     }
     .label {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       letter-spacing: .04em;
       text-transform: uppercase;
     }
     .term {
       font-family: var(--font-display);
-      font-size: clamp(30px, 5.2vw, 52px);
+      font-size: clamp(25px, 3.8vw, 42px);
       font-weight: 500;
       line-height: 1.22;
       overflow-wrap: anywhere;
     }
     .meaning {
-      font-size: clamp(21px, 3.2vw, 34px);
-      line-height: 1.55;
+      font-size: clamp(18px, 2.3vw, 26px);
+      line-height: 1.45;
       overflow-wrap: anywhere;
     }
     #caseEnglish {
       font-family: var(--font-display);
-      font-size: clamp(22px, 2.7vw, 34px);
-      line-height: 1.62;
+      font-size: clamp(18px, 2vw, 26px);
+      line-height: 1.5;
     }
     .note {
-      font-size: 16px;
+      font-size: 14px;
       color: var(--muted);
-      line-height: 1.65;
+      line-height: 1.5;
       overflow-wrap: anywhere;
     }
     .breakdown {
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: var(--panel-2);
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
     .breakdown-title {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--muted);
       font-weight: 700;
     }
     .breakdown-parts {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 6px;
     }
     .breakdown-part {
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 9px 10px;
+      padding: 7px 9px;
       background: var(--panel);
-      line-height: 1.45;
+      line-height: 1.35;
     }
     .breakdown-part b {
       display: block;
@@ -258,8 +258,8 @@
     }
     .breakdown-hint {
       color: var(--muted);
-      line-height: 1.6;
-      font-size: 15px;
+      line-height: 1.45;
+      font-size: 13px;
     }
     .answer-row {
       display: flex;
@@ -270,24 +270,24 @@
     input[type="text"] {
       flex: 1 1 260px;
       width: 100%;
-      min-height: 52px;
+      min-height: 46px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 13px 15px;
+      padding: 10px 12px;
       font: inherit;
-      font-size: 18px;
+      font-size: 16px;
       background: var(--panel);
       color: var(--text);
     }
     textarea {
       width: 100%;
-      min-height: 170px;
+      min-height: 118px;
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 16px 18px;
+      padding: 12px 14px;
       font: inherit;
-      font-size: 18px;
-      line-height: 1.7;
+      font-size: 16px;
+      line-height: 1.55;
       resize: vertical;
       background: var(--panel);
       color: var(--text);
@@ -295,11 +295,11 @@
     input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--muted) 78%, transparent); }
     .reference {
       border-left: 3px solid var(--accent);
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: var(--accent-soft);
       border-radius: 10px;
-      font-size: 18px;
-      line-height: 1.7;
+      font-size: 16px;
+      line-height: 1.55;
     }
     .user-answer {
       border-left-color: var(--accent-2);
@@ -307,73 +307,166 @@
     }
     .keywords {
       display: flex;
-      gap: 9px;
+      gap: 7px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-top: 8px;
     }
     .keyword {
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 6px 8px;
       background: var(--panel);
-      font-size: 14px;
+      font-size: 13px;
       color: var(--muted);
     }
     .feedback {
-      min-height: 32px;
-      font-size: 16px;
+      min-height: 26px;
+      font-size: 14px;
       font-weight: 650;
     }
     .feedback.good { color: var(--good); }
     .feedback.bad { color: var(--bad); }
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+      gap: 10px;
     }
     .stat {
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: var(--panel);
     }
     .stat b {
       display: block;
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: 23px;
       font-weight: 500;
       line-height: 1.2;
     }
     .list {
       display: grid;
-      gap: 10px;
-      max-height: 360px;
+      gap: 8px;
+      max-height: 300px;
       overflow: auto;
     }
     .list-item {
       display: grid;
-      gap: 6px;
+      gap: 4px;
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: var(--panel);
-      line-height: 1.65;
+      line-height: 1.5;
+    }
+    @media (min-width: 900px) {
+      header {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 238px;
+        height: 100vh;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        padding: 24px 16px;
+        border-right: 1px solid var(--line);
+        border-bottom: 0;
+      }
+      h1 {
+        font-size: 25px;
+        line-height: 1.14;
+      }
+      .top-actions {
+        width: 100%;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .top-actions button {
+        width: 100%;
+        text-align: left;
+      }
+      main {
+        width: calc(100% - 238px);
+        max-width: 1220px;
+        margin: 0 0 0 238px;
+        padding: 22px 28px 36px;
+      }
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .panel {
+        margin-bottom: 12px;
+      }
+      .study-card {
+        min-height: 225px;
+        scroll-margin-top: 20px;
+      }
+      #casePracticeScreen .study-card {
+        min-height: 300px;
+      }
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      }
     }
     @media (max-width: 650px) {
-      header { align-items: flex-start; flex-direction: column; }
-      .top-actions { justify-content: flex-start; }
-      main { padding-top: 24px; }
+      body {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 16px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      .top-actions {
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .top-actions button { width: 100%; }
+      main { padding: 14px 16px 32px; }
+      .panel { padding: 14px; margin-bottom: 12px; }
       .toolbar { align-items: stretch; }
       .segmented, .answer-row { width: 100%; }
       .segmented button, .answer-row button { flex: 1 1 auto; }
-      button { min-height: 48px; }
-      .study-card {
-        min-height: 280px;
-        align-content: start;
+      button {
+        min-height: 40px;
+        padding: 7px 10px;
+        font-size: 13px;
       }
-      .term { font-size: clamp(28px, 10vw, 42px); }
-      .meaning { font-size: clamp(20px, 6vw, 28px); }
-      #caseEnglish { font-size: clamp(21px, 6.6vw, 30px); }
+      .study-card {
+        min-height: 220px;
+        align-content: start;
+        padding: 18px;
+        gap: 12px;
+      }
+      .term { font-size: clamp(23px, 7.5vw, 32px); }
+      .meaning { font-size: clamp(17px, 4.8vw, 22px); }
+      #caseEnglish {
+        font-size: clamp(16px, 4.9vw, 21px);
+        line-height: 1.5;
+      }
+      textarea {
+        min-height: 110px;
+        font-size: 15px;
+      }
+      input[type="text"] {
+        min-height: 42px;
+        font-size: 15px;
+      }
+      .reference {
+        font-size: 15px;
+      }
+      .stat b {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
@@ -803,7 +896,11 @@
         </div>
       `;
       const input = $("answerInput");
-      input.focus();
+      try {
+        input.focus({ preventScroll: true });
+      } catch {
+        input.focus();
+      }
       input.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
@@ -876,7 +973,6 @@
       state.submitted = false;
       state.lastInput = "";
       renderPractice();
-      scrollToStudyCard("practiceScreen");
     }
 
     function prevItem() {
@@ -887,7 +983,6 @@
       state.submitted = false;
       state.lastInput = "";
       renderPractice();
-      scrollToStudyCard("practiceScreen");
     }
 
     function mainAction() {
@@ -910,13 +1005,6 @@
       }
     }
 
-    function scrollToStudyCard(screenId) {
-      requestAnimationFrame(() => {
-        const card = document.querySelector(`#${screenId} .study-card`);
-        if (card) card.scrollIntoView({ block: "start", behavior: "auto" });
-      });
-    }
-
     function shufflePool() {
       refreshPool();
       for (let i = state.pool.length - 1; i > 0; i--) {
@@ -928,7 +1016,6 @@
       state.submitted = false;
       state.lastInput = "";
       renderPractice();
-      scrollToStudyCard("practiceScreen");
     }
 
     function caseKeyOf(item) {
@@ -1085,7 +1172,6 @@
       caseState.lastInput = "";
       caseState.showHints = false;
       renderCasePractice();
-      scrollToStudyCard("casePracticeScreen");
     }
 
     function prevCase() {
@@ -1096,7 +1182,6 @@
       caseState.lastInput = "";
       caseState.showHints = false;
       renderCasePractice();
-      scrollToStudyCard("casePracticeScreen");
     }
 
     function caseMainAction() {
@@ -1145,7 +1230,6 @@
       state.submitted = false;
       state.lastInput = "";
       renderPractice();
-      scrollToStudyCard("practiceScreen");
     });
     document.querySelectorAll("[data-mode]").forEach(btn => {
       btn.addEventListener("click", () => {
