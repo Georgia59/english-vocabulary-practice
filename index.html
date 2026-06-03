@@ -6,217 +6,339 @@
   <title>English Vocabulary Practice</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f6f7f9;
-      --panel: #ffffff;
-      --text: #20242a;
-      --muted: #68707d;
-      --line: #d9dee7;
-      --accent: #1f7a6d;
-      --accent-2: #255f9c;
-      --bad: #b23b3b;
-      --good: #23724f;
-      --shadow: 0 10px 24px rgba(30, 40, 55, .08);
+      color-scheme: light dark;
+      --bg: #fbf9f6;
+      --bg-soft: #f6f0e8;
+      --panel: #fffaf2;
+      --panel-2: #f8f2e9;
+      --text: #22211f;
+      --muted: #756e64;
+      --line: rgba(70, 55, 42, .14);
+      --line-strong: rgba(70, 55, 42, .24);
+      --accent: #cc6a4a;
+      --accent-hover: #b95d40;
+      --accent-soft: #f3dfd5;
+      --accent-2: #6f7358;
+      --accent-2-soft: #e4e6d8;
+      --bad: #a44939;
+      --good: #5d6f4a;
+      --shadow: 0 18px 50px rgba(64, 48, 34, .06);
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+      --font-display: Georgia, Cambria, "Times New Roman", "Songti SC", "SimSun", serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #131210;
+        --bg-soft: #1b1916;
+        --panel: #1f1d19;
+        --panel-2: #25221d;
+        --text: #eee6dc;
+        --muted: #b9aa9b;
+        --line: rgba(238, 230, 220, .14);
+        --line-strong: rgba(238, 230, 220, .24);
+        --accent: #d97756;
+        --accent-hover: #e08b70;
+        --accent-soft: rgba(217, 119, 86, .18);
+        --accent-2: #9da27f;
+        --accent-2-soft: rgba(157, 162, 127, .18);
+        --bad: #e08b70;
+        --good: #a8b28a;
+        --shadow: none;
+      }
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Arial, "Microsoft YaHei", sans-serif;
-      background: var(--bg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      background:
+        radial-gradient(circle at top left, rgba(204, 106, 74, .08), transparent 32rem),
+        linear-gradient(180deg, var(--bg), var(--bg-soft));
       color: var(--text);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
     }
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      padding: 18px clamp(16px, 4vw, 48px);
+      gap: 18px;
+      padding: 22px clamp(18px, 4vw, 56px);
       border-bottom: 1px solid var(--line);
-      background: #fff;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(18px);
       position: sticky;
       top: 0;
       z-index: 2;
     }
     h1 {
       margin: 0;
-      font-size: clamp(20px, 3vw, 30px);
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 500;
       letter-spacing: 0;
     }
-    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    h2 {
+      margin: 4px 0 0;
+      font-family: var(--font-display);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     main {
-      width: min(1120px, 100%);
+      width: min(1080px, 100%);
       margin: 0 auto;
-      padding: 22px clamp(14px, 4vw, 32px) 40px;
+      padding: clamp(24px, 5vw, 52px) clamp(16px, 4vw, 36px) 56px;
     }
     .screen { display: none; }
     .screen.active { display: block; }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
     }
     .tile, .card, .panel {
-      background: var(--panel);
+      background: color-mix(in srgb, var(--panel) 94%, var(--bg));
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 12px;
       box-shadow: var(--shadow);
     }
     .tile {
-      min-height: 96px;
-      padding: 16px;
+      min-height: 112px;
+      padding: 22px;
       text-align: left;
       cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
     }
-    .tile strong { display: block; font-size: 22px; margin-bottom: 8px; }
+    .tile:hover {
+      background: var(--panel);
+      border-color: var(--line-strong);
+      transform: translateY(-1px);
+    }
+    .tile strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
     .tile span, .muted { color: var(--muted); }
-    .panel { padding: 16px; margin-bottom: 14px; }
+    .panel {
+      padding: clamp(18px, 3vw, 28px);
+      margin-bottom: 20px;
+    }
     .toolbar {
       display: flex;
-      gap: 10px;
+      gap: 14px;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
     }
     .segmented {
       display: inline-flex;
-      gap: 4px;
-      padding: 4px;
+      gap: 6px;
+      padding: 5px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #eef1f5;
+      border-radius: 12px;
+      background: var(--panel-2);
       flex-wrap: wrap;
     }
     button {
       border: 1px solid var(--line);
-      background: #fff;
+      background: var(--panel);
       color: var(--text);
-      border-radius: 8px;
-      padding: 10px 14px;
-      min-height: 42px;
+      border-radius: 10px;
+      padding: 10px 15px;
+      min-height: 44px;
+      font: inherit;
       font-size: 15px;
+      line-height: 1.2;
       cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
     }
-    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-    button.secondary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
-    button.danger { color: var(--bad); }
-    button.active { background: var(--text); color: #fff; border-color: var(--text); }
+    button:hover:not(:disabled) {
+      background: var(--panel-2);
+      border-color: var(--line-strong);
+    }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff7f0;
+    }
+    button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      color: #fbf6ec;
+    }
+    button.danger {
+      color: var(--bad);
+      background: transparent;
+    }
+    button.active {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
     button:disabled { opacity: .45; cursor: not-allowed; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--accent) 58%, transparent);
+      outline-offset: 2px;
+    }
     .study-card {
-      min-height: 310px;
-      padding: clamp(18px, 4vw, 34px);
+      min-height: 320px;
+      padding: clamp(24px, 4vw, 42px);
       display: grid;
       align-content: center;
-      gap: 18px;
+      gap: 22px;
+      scroll-margin-top: 118px;
     }
-    .label { color: var(--muted); font-size: 14px; }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
     .term {
-      font-size: clamp(30px, 6vw, 56px);
-      line-height: 1.14;
+      font-family: var(--font-display);
+      font-size: clamp(30px, 5.2vw, 52px);
+      font-weight: 500;
+      line-height: 1.22;
       overflow-wrap: anywhere;
     }
     .meaning {
-      font-size: clamp(22px, 4vw, 36px);
-      line-height: 1.25;
+      font-size: clamp(21px, 3.2vw, 34px);
+      line-height: 1.55;
       overflow-wrap: anywhere;
     }
+    #caseEnglish {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 2.7vw, 34px);
+      line-height: 1.62;
+    }
     .note {
-      font-size: 17px;
+      font-size: 16px;
       color: var(--muted);
-      line-height: 1.45;
+      line-height: 1.65;
       overflow-wrap: anywhere;
     }
     .answer-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
       align-items: center;
     }
     input[type="text"] {
       flex: 1 1 260px;
       width: 100%;
-      min-height: 50px;
+      min-height: 52px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px 14px;
+      border-radius: 10px;
+      padding: 13px 15px;
+      font: inherit;
       font-size: 18px;
-      background: #fff;
+      background: var(--panel);
+      color: var(--text);
     }
     textarea {
       width: 100%;
-      min-height: 140px;
+      min-height: 170px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 17px;
-      line-height: 1.5;
-      resize: vertical;
-      font-family: inherit;
-      background: #fff;
-    }
-    .reference {
-      border-left: 4px solid var(--accent);
-      padding: 10px 12px;
-      background: #f2f8f6;
-      border-radius: 6px;
+      border-radius: 12px;
+      padding: 16px 18px;
+      font: inherit;
       font-size: 18px;
-      line-height: 1.55;
+      line-height: 1.7;
+      resize: vertical;
+      background: var(--panel);
+      color: var(--text);
+    }
+    input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--muted) 78%, transparent); }
+    .reference {
+      border-left: 3px solid var(--accent);
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border-radius: 10px;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+    .user-answer {
+      border-left-color: var(--accent-2);
+      background: var(--accent-2-soft);
     }
     .keywords {
       display: flex;
-      gap: 8px;
+      gap: 9px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .keyword {
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 7px 9px;
-      background: #fff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: var(--panel);
       font-size: 14px;
+      color: var(--muted);
     }
     .feedback {
-      min-height: 30px;
-      font-size: 17px;
-      font-weight: 700;
+      min-height: 32px;
+      font-size: 16px;
+      font-weight: 650;
     }
     .feedback.good { color: var(--good); }
     .feedback.bad { color: var(--bad); }
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
     }
     .stat {
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--panel);
     }
-    .stat b { display: block; font-size: 24px; }
+    .stat b {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
     .list {
       display: grid;
-      gap: 8px;
-      max-height: 340px;
+      gap: 10px;
+      max-height: 360px;
       overflow: auto;
     }
     .list-item {
       display: grid;
-      gap: 4px;
+      gap: 6px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px;
-      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--panel);
+      line-height: 1.65;
     }
     @media (max-width: 650px) {
       header { align-items: flex-start; flex-direction: column; }
       .top-actions { justify-content: flex-start; }
+      main { padding-top: 24px; }
       .toolbar { align-items: stretch; }
       .segmented, .answer-row { width: 100%; }
       .segmented button, .answer-row button { flex: 1 1 auto; }
-      button { min-height: 46px; }
-      .study-card { min-height: 280px; }
+      button { min-height: 48px; }
+      .study-card {
+        min-height: 280px;
+        align-content: start;
+      }
+      .term { font-size: clamp(28px, 10vw, 42px); }
+      .meaning { font-size: clamp(20px, 6vw, 28px); }
+      #caseEnglish { font-size: clamp(21px, 6.6vw, 30px); }
     }
   </style>
 </head>
@@ -226,7 +348,7 @@
     <div class="top-actions">
       <button id="homeBtn">首页</button>
       <button id="exportBtn">导出进度</button>
-      <button id="resetBtn" class="danger">清空进度</button>
+      <button id="resetBtn" class="danger">清空全部进度</button>
     </div>
   </header>
   <main>
@@ -262,12 +384,14 @@
           <button data-mode="review" class="active">记忆</button>
           <button data-mode="enToZh">英译中</button>
           <button data-mode="zhToEn">中译英</button>
+          <button data-mode="correct">正确</button>
           <button data-mode="mistakes">错词</button>
         </div>
       </div>
       <div class="panel stats">
         <div class="stat"><span class="label">总数</span><b id="totalStat">0</b></div>
         <div class="stat"><span class="label">已练</span><b id="seenStat">0</b></div>
+        <div class="stat"><span class="label">正确</span><b id="correctStat">0</b></div>
         <div class="stat"><span class="label">掌握</span><b id="masteredStat">0</b></div>
         <div class="stat"><span class="label">错词</span><b id="wrongStat">0</b></div>
       </div>
@@ -284,9 +408,9 @@
           <button id="nextBtn" class="secondary">下一个</button>
         </div>
         <div class="answer-row">
-          <button id="knowBtn">认识</button>
-          <button id="dontKnowBtn">不认识</button>
+          <button id="masterBtn">掌握</button>
           <button id="shuffleBtn">随机</button>
+          <button id="resetCurrentVocabBtn" class="danger">清空当前 Unit 进度</button>
         </div>
       </div>
       <div id="mistakePanel" class="panel">
@@ -313,7 +437,7 @@
       <div class="panel stats">
         <div class="stat"><span class="label">总数</span><b id="caseTotalStat">0</b></div>
         <div class="stat"><span class="label">已练</span><b id="caseSeenStat">0</b></div>
-        <div class="stat"><span class="label">基本正确</span><b id="caseGoodStat">0</b></div>
+        <div class="stat"><span class="label">正确</span><b id="caseGoodStat">0</b></div>
         <div class="stat"><span class="label">错句</span><b id="caseWrongStat">0</b></div>
       </div>
       <div class="card study-card">
@@ -330,9 +454,9 @@
         </div>
         <div class="answer-row">
           <button id="caseHintBtn">关键词</button>
-          <button id="caseGoodBtn">基本正确</button>
-          <button id="caseUnsureBtn">不熟</button>
-          <button id="caseBadBtn">完全不会</button>
+          <button id="caseGoodBtn">正确</button>
+          <button id="caseWeakBtn">不熟</button>
+          <button id="resetCurrentCaseBtn" class="danger">清空当前 Unit 进度</button>
         </div>
       </div>
       <div id="caseMistakePanel" class="panel">
@@ -360,6 +484,7 @@
       index: 0,
       revealed: false,
       submitted: false,
+      lastInput: "",
       pool: []
     };
     let caseState = {
@@ -367,6 +492,7 @@
       mode: "practice",
       index: 0,
       submitted: false,
+      lastInput: "",
       showHints: false,
       pool: []
     };
@@ -406,25 +532,40 @@
 
     function record(item, correct) {
       const key = keyOf(item);
-      const row = progress[key] || { seen: 0, correct: 0, wrong: false, last: "" };
+      const row = progress[key] || { seen: 0, correct: 0, wrong: false, mastered: false, last: "" };
       row.seen += 1;
       if (correct) row.correct += 1;
       row.wrong = correct ? row.wrong : true;
+      if (!correct) row.mastered = false;
       row.last = new Date().toISOString();
+      progress[key] = row;
+      saveProgress();
+    }
+
+    function setMastered(item, mastered) {
+      const key = keyOf(item);
+      const row = progress[key] || { seen: 0, correct: 0, wrong: false, mastered: false, last: "" };
+      row.mastered = mastered;
+      if (mastered) {
+        row.wrong = false;
+        row.last = new Date().toISOString();
+      }
       progress[key] = row;
       saveProgress();
     }
 
     function setWrong(item, wrong) {
       const key = keyOf(item);
-      const row = progress[key] || { seen: 0, correct: 0, wrong: false, last: "" };
+      const row = progress[key] || { seen: 0, correct: 0, wrong: false, mastered: false, last: "" };
       row.wrong = wrong;
+      if (wrong) row.mastered = false;
       progress[key] = row;
       saveProgress();
     }
 
     function showScreen(id) {
       screens.forEach(s => $(s).classList.toggle("active", s === id));
+      $("resetBtn").hidden = id !== "homeScreen";
     }
 
     function scopedItems() {
@@ -433,8 +574,12 @@
 
     function activeItems() {
       const base = scopedItems();
-      if (state.mode !== "mistakes") return base;
-      return base.filter(item => progress[keyOf(item)]?.wrong);
+      if (state.mode === "mistakes") return base.filter(item => progress[keyOf(item)]?.wrong);
+      if (state.mode === "correct") return base.filter(item => {
+        const row = progress[keyOf(item)];
+        return row?.correct > 0 && !row.wrong && !row.mastered;
+      });
+      return base.filter(item => !progress[keyOf(item)]?.mastered);
     }
 
     function renderHome() {
@@ -480,6 +625,7 @@
           state.index = 0;
           state.revealed = false;
           state.submitted = false;
+          state.lastInput = "";
           refreshPool();
           showScreen("practiceScreen");
           renderPractice();
@@ -552,15 +698,17 @@
       $("positionText").textContent = state.pool.length ? `${state.index + 1} / ${state.pool.length}` : "0 / 0";
       $("feedback").textContent = "";
       $("feedback").className = "feedback";
-      $("knowBtn").disabled = isWritingMode(state.mode) || !item;
-      $("dontKnowBtn").disabled = isWritingMode(state.mode) || !item;
+      $("masterBtn").disabled = !item || (isWritingMode(state.mode) && !state.submitted);
       $("prevBtn").disabled = !item || state.pool.length < 2;
       $("nextBtn").disabled = !item || state.pool.length < 2;
+      $("mainBtn").hidden = state.mode === "review";
+      $("nextBtn").hidden = isWritingMode(state.mode) && state.submitted;
       if (!item) {
         $("promptLabel").textContent = "没有可练习的项目";
         $("promptText").textContent = state.mode === "mistakes" ? "当前没有错词" : "这个分类暂无内容";
         $("answerArea").innerHTML = "";
         $("mainBtn").disabled = true;
+        $("nextBtn").hidden = false;
         return;
       }
       $("mainBtn").disabled = false;
@@ -572,7 +720,7 @@
     }
 
     function renderReview(item) {
-      $("promptLabel").textContent = "记忆";
+      $("promptLabel").textContent = state.mode === "correct" ? "正确" : "记忆";
       $("promptText").textContent = item.term;
       $("mainBtn").textContent = "下一个";
       $("answerArea").innerHTML = `<div class="meaning">${escapeHtml(item.meaning)}</div>${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}`;
@@ -580,23 +728,32 @@
 
     function renderDictation(item) {
       const englishAnswer = state.mode !== "enToZh";
+      $("mainBtn").hidden = false;
+      $("nextBtn").hidden = state.submitted;
+      $("masterBtn").disabled = !item || !state.submitted;
       $("promptLabel").textContent = state.mode === "enToZh" ? "英译中" : (state.mode === "mistakes" ? "错词：中译英" : "中译英");
       $("promptText").textContent = englishAnswer ? item.meaning : item.term;
       $("mainBtn").textContent = state.submitted ? "下一个" : "提交";
       const answerText = englishAnswer ? item.term : item.meaning;
       const extra = englishAnswer && item.note ? "；" + escapeHtml(item.note) : "";
-      const result = state.submitted ? `<div class="note">答案：${escapeHtml(answerText)}${extra}</div>` : "";
+      if (state.submitted) {
+        $("answerArea").innerHTML = `
+          <div class="reference user-answer"><strong>你的答案：</strong>${escapeHtml(state.lastInput || "")}</div>
+          <div class="reference"><strong>参考答案：</strong>${escapeHtml(answerText)}${extra}</div>
+        `;
+        return;
+      }
       $("answerArea").innerHTML = `
         <div class="answer-row">
           <input id="answerInput" type="text" enterkeyhint="done" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="${englishAnswer ? "输入英文" : "输入中文释义"}">
         </div>
-        ${result}
       `;
       const input = $("answerInput");
       input.focus();
       input.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
+          event.stopPropagation();
           handleEnter();
         }
       });
@@ -608,15 +765,17 @@
 
     function updateStats() {
       const items = scopedItems();
-      let seen = 0, mastered = 0, wrong = 0;
+      let seen = 0, correctCount = 0, mastered = 0, wrong = 0;
       for (const item of items) {
         const row = progress[keyOf(item)];
         if (row?.seen) seen += 1;
-        if (row?.seen >= 2 && row.correct / row.seen >= 0.8 && !row.wrong) mastered += 1;
+        if (row?.correct > 0 && !row.wrong && !row.mastered) correctCount += 1;
+        if (row?.mastered && !row.wrong) mastered += 1;
         if (row?.wrong) wrong += 1;
       }
       $("totalStat").textContent = items.length;
       $("seenStat").textContent = seen;
+      $("correctStat").textContent = correctCount;
       $("masteredStat").textContent = mastered;
       $("wrongStat").textContent = wrong;
     }
@@ -639,14 +798,15 @@
       const value = input.value.trim();
       if (!value) return;
       const ok = isCorrect(value, item);
+      state.lastInput = value;
       record(item, ok);
       if (ok) setWrong(item, false);
-      $("feedback").textContent = ok ? "正确" : "错误";
-      $("feedback").className = `feedback ${ok ? "good" : "bad"}`;
+      $("feedback").textContent = ok ? "" : "错误";
+      $("feedback").className = `feedback ${ok ? "" : "bad"}`;
       state.submitted = true;
       renderDictation(item);
-      $("feedback").textContent = ok ? "正确" : "错误";
-      $("feedback").className = `feedback ${ok ? "good" : "bad"}`;
+      $("feedback").textContent = ok ? "" : "错误";
+      $("feedback").className = `feedback ${ok ? "" : "bad"}`;
       updateStats();
       renderMistakes();
     }
@@ -660,7 +820,9 @@
       state.index = (state.index + 1) % state.pool.length;
       state.revealed = false;
       state.submitted = false;
+      state.lastInput = "";
       renderPractice();
+      scrollToStudyCard("practiceScreen");
     }
 
     function prevItem() {
@@ -669,7 +831,9 @@
       state.index = (state.index - 1 + state.pool.length) % state.pool.length;
       state.revealed = false;
       state.submitted = false;
+      state.lastInput = "";
       renderPractice();
+      scrollToStudyCard("practiceScreen");
     }
 
     function mainAction() {
@@ -679,7 +843,6 @@
         state.submitted ? nextItem() : submitAnswer();
         return;
       }
-      record(item, true);
       nextItem();
     }
 
@@ -693,6 +856,13 @@
       }
     }
 
+    function scrollToStudyCard(screenId) {
+      requestAnimationFrame(() => {
+        const card = document.querySelector(`#${screenId} .study-card`);
+        if (card) card.scrollIntoView({ block: "start", behavior: "auto" });
+      });
+    }
+
     function shufflePool() {
       refreshPool();
       for (let i = state.pool.length - 1; i > 0; i--) {
@@ -702,7 +872,9 @@
       state.index = 0;
       state.revealed = false;
       state.submitted = false;
+      state.lastInput = "";
       renderPractice();
+      scrollToStudyCard("practiceScreen");
     }
 
     function caseKeyOf(item) {
@@ -798,29 +970,35 @@
       $("caseNextBtn").disabled = !item || caseState.pool.length < 2;
       $("caseHintBtn").disabled = !item;
       $("caseGoodBtn").disabled = !item || !caseState.submitted;
-      $("caseUnsureBtn").disabled = !item || !caseState.submitted;
-      $("caseBadBtn").disabled = !item || !caseState.submitted;
+      $("caseWeakBtn").disabled = !item || !caseState.submitted;
+      $("caseMainBtn").hidden = caseState.submitted;
+      $("caseNextBtn").hidden = caseState.submitted || caseState.mode === "compare";
       if (!item) {
         $("casePromptLabel").textContent = "没有可练习的项目";
         $("caseEnglish").textContent = caseState.mode === "mistakes" ? "当前没有错句" : "这个 Unit 暂无病例翻译内容";
         $("caseAnswerArea").innerHTML = "";
         $("caseMainBtn").disabled = true;
+        $("caseMainBtn").hidden = false;
+        $("caseNextBtn").hidden = false;
         return;
       }
       $("caseMainBtn").disabled = false;
+      if (!caseState.submitted) $("caseMainBtn").hidden = false;
       $("casePromptLabel").textContent = caseState.mode === "compare" ? "对照模式" : "英译中";
       $("caseEnglish").textContent = item.english;
-      $("caseMainBtn").textContent = caseState.submitted || caseState.mode === "compare" ? "下一个" : "提交";
+      $("caseMainBtn").textContent = caseState.submitted ? "正确" : (caseState.mode === "compare" ? "下一个" : "提交");
+      const yourAnswer = caseState.submitted
+        ? `<div class="reference user-answer"><strong>你的译文：</strong>${escapeHtml(caseState.lastInput || "")}</div>`
+        : "";
       const reference = (caseState.submitted || caseState.mode === "compare")
         ? `<div class="reference"><strong>参考译文：</strong>${escapeHtml(item.translation)}</div>`
         : "";
-      const input = caseState.mode === "compare" ? "" : `
+      const input = (caseState.mode === "compare" || caseState.submitted) ? "" : `
         <textarea id="caseInput" enterkeyhint="done" autocomplete="off" placeholder="输入你的中文翻译。按回车提交，Shift+Enter 换行。"></textarea>
       `;
-      $("caseAnswerArea").innerHTML = `${input}${reference}${renderKeywords(item)}`;
+      $("caseAnswerArea").innerHTML = `${input}${yourAnswer}${reference}${renderKeywords(item)}`;
       const textarea = $("caseInput");
       if (textarea) {
-        textarea.focus();
         textarea.addEventListener("keydown", event => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -834,6 +1012,8 @@
     function submitCaseTranslation() {
       const item = currentCase();
       if (!item) return;
+      const textarea = $("caseInput");
+      caseState.lastInput = textarea ? textarea.value.trim() : "";
       caseState.submitted = true;
       caseState.showHints = true;
       renderCasePractice();
@@ -848,8 +1028,10 @@
       }
       caseState.index = (caseState.index + 1) % caseState.pool.length;
       caseState.submitted = false;
+      caseState.lastInput = "";
       caseState.showHints = false;
       renderCasePractice();
+      scrollToStudyCard("casePracticeScreen");
     }
 
     function prevCase() {
@@ -857,12 +1039,20 @@
       if (!caseState.pool.length) return;
       caseState.index = (caseState.index - 1 + caseState.pool.length) % caseState.pool.length;
       caseState.submitted = false;
+      caseState.lastInput = "";
       caseState.showHints = false;
       renderCasePractice();
+      scrollToStudyCard("casePracticeScreen");
     }
 
     function caseMainAction() {
-      if (caseState.mode === "compare" || caseState.submitted) {
+      const item = currentCase();
+      if (caseState.submitted) {
+        if (item) recordCase(item, "good");
+        nextCase();
+        return;
+      }
+      if (caseState.mode === "compare") {
         nextCase();
       } else {
         submitCaseTranslation();
@@ -887,29 +1077,16 @@
       if (item) recordCase(item, "good");
       nextCase();
     });
-    $("caseUnsureBtn").addEventListener("click", () => {
+    $("caseWeakBtn").addEventListener("click", () => {
       const item = currentCase();
       if (item) recordCase(item, "unsure");
       nextCase();
     });
-    $("caseBadBtn").addEventListener("click", () => {
-      const item = currentCase();
-      if (item) recordCase(item, "bad");
-      nextCase();
-    });
-    $("knowBtn").addEventListener("click", () => {
+    $("masterBtn").addEventListener("click", () => {
       const item = currentItem();
       if (item) {
-        record(item, true);
+        setMastered(item, true);
         setWrong(item, false);
-      }
-      nextItem();
-    });
-    $("dontKnowBtn").addEventListener("click", () => {
-      const item = currentItem();
-      if (item) {
-        record(item, false);
-        setWrong(item, true);
       }
       nextItem();
     });
@@ -919,6 +1096,7 @@
         state.index = 0;
         state.revealed = false;
         state.submitted = false;
+        state.lastInput = "";
         renderPractice();
       });
     });
@@ -927,6 +1105,7 @@
         caseState.mode = btn.dataset.caseMode;
         caseState.index = 0;
         caseState.submitted = false;
+        caseState.lastInput = "";
         caseState.showHints = false;
         renderCasePractice();
       });
@@ -935,8 +1114,31 @@
       scopedItems().forEach(item => setWrong(item, false));
       renderPractice();
     });
+    $("resetCurrentVocabBtn").addEventListener("click", () => {
+      if (!confirm(`确定清空 ${state.unit} 的单词进度？`)) return;
+      VOCAB.filter(item => item.unit === state.unit).forEach(item => {
+        delete progress[keyOf(item)];
+      });
+      saveProgress();
+      state.index = 0;
+      state.submitted = false;
+      state.lastInput = "";
+      renderPractice();
+    });
     $("clearCaseMistakes").addEventListener("click", () => {
       scopedCases().forEach(item => setCaseWrong(item, false));
+      renderCasePractice();
+    });
+    $("resetCurrentCaseBtn").addEventListener("click", () => {
+      if (!confirm(`确定清空 ${caseState.unit} 的病例翻译进度？`)) return;
+      CASES.filter(item => item.unit === caseState.unit).forEach(item => {
+        delete caseProgress[caseKeyOf(item)];
+      });
+      saveCaseProgress();
+      caseState.index = 0;
+      caseState.submitted = false;
+      caseState.lastInput = "";
+      caseState.showHints = false;
       renderCasePractice();
     });
     $("resetBtn").addEventListener("click", () => {
