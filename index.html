@@ -143,6 +143,39 @@
       font-size: 18px;
       background: #fff;
     }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 17px;
+      line-height: 1.5;
+      resize: vertical;
+      font-family: inherit;
+      background: #fff;
+    }
+    .reference {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f2f8f6;
+      border-radius: 6px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+    .keywords {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .keyword {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+      background: #fff;
+      font-size: 14px;
+    }
     .feedback {
       min-height: 30px;
       font-size: 17px;
@@ -199,8 +232,12 @@
   <main>
     <section id="homeScreen" class="screen active">
       <div class="panel">
-        <div class="label">选择 Unit</div>
+        <div class="label">Vocabulary Practice</div>
         <div id="unitGrid" class="grid"></div>
+      </div>
+      <div class="panel">
+        <div class="label">Case Translation</div>
+        <div id="caseUnitGrid" class="grid"></div>
       </div>
     </section>
 
@@ -260,12 +297,61 @@
         <div id="mistakeList" class="list"></div>
       </div>
     </section>
+
+    <section id="casePracticeScreen" class="screen">
+      <div class="panel toolbar">
+        <div>
+          <div class="label" id="caseScope"></div>
+          <strong id="casePositionText"></strong>
+        </div>
+        <div class="segmented" aria-label="case mode">
+          <button data-case-mode="practice" class="active">逐句</button>
+          <button data-case-mode="mistakes">错句</button>
+          <button data-case-mode="compare">对照</button>
+        </div>
+      </div>
+      <div class="panel stats">
+        <div class="stat"><span class="label">总数</span><b id="caseTotalStat">0</b></div>
+        <div class="stat"><span class="label">已练</span><b id="caseSeenStat">0</b></div>
+        <div class="stat"><span class="label">基本正确</span><b id="caseGoodStat">0</b></div>
+        <div class="stat"><span class="label">错句</span><b id="caseWrongStat">0</b></div>
+      </div>
+      <div class="card study-card">
+        <div class="label" id="casePromptLabel">英译中</div>
+        <div id="caseEnglish" class="meaning"></div>
+        <div id="caseAnswerArea"></div>
+        <div id="caseFeedback" class="feedback"></div>
+      </div>
+      <div class="panel toolbar">
+        <div class="answer-row">
+          <button id="casePrevBtn">上一个</button>
+          <button id="caseMainBtn" class="primary">提交</button>
+          <button id="caseNextBtn" class="secondary">下一个</button>
+        </div>
+        <div class="answer-row">
+          <button id="caseHintBtn">关键词</button>
+          <button id="caseGoodBtn">基本正确</button>
+          <button id="caseUnsureBtn">不熟</button>
+          <button id="caseBadBtn">完全不会</button>
+        </div>
+      </div>
+      <div id="caseMistakePanel" class="panel">
+        <div class="toolbar">
+          <strong>错句本</strong>
+          <button id="clearCaseMistakes">清空当前错句</button>
+        </div>
+        <div id="caseMistakeList" class="list"></div>
+      </div>
+    </section>
   </main>
 
   <script>
     const VOCAB = [{"unit": "Unit5", "category": "Medical terminology", "term": "cardialgia / cardiodynia", "meaning": "心痛", "note": "pain in the heart", "answers": ["cardialgia", "cardiodynia"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "cardiology", "meaning": "心脏病学", "note": "the study of the heart and its diseases", "answers": ["cardiology"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "coronary", "meaning": "冠状的", "note": "affecting the heart and arteries", "answers": ["coronary"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "coronavirus", "meaning": "冠状病毒", "note": "", "answers": ["coronavirus"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "aortic", "meaning": "主动脉的", "note": "pertaining to the biggest artery of the human body", "answers": ["aortic"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "aortogram", "meaning": "主动脉造影片", "note": "an X-ray film or record of the aorta", "answers": ["aortogram"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "aortography", "meaning": "主动脉造影术", "note": "examination of the aorta using x-rays", "answers": ["aortography"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "transatrial", "meaning": "经心房的", "note": "performed through the atrium", "answers": ["transatrial"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "atriomegaly", "meaning": "心房肥大", "note": "enlargement of the upper chambers of the heart", "answers": ["atriomegaly"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "supraventricular", "meaning": "室上的", "note": "", "answers": ["supraventricular"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "ventriculoscope", "meaning": "脑室镜", "note": "instrument used to view and examine the ventricle", "answers": ["ventriculoscope"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "valvoplasty", "meaning": "瓣膜成形术", "note": "surgical repair of the valve", "answers": ["valvoplasty"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "valvulotomy", "meaning": "瓣膜切开术", "note": "incision into a stenosed cardiac valve to relieve the obstruction", "answers": ["valvulotomy"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "valvulitis", "meaning": "瓣膜炎", "note": "an inflammation of the valve", "answers": ["valvulitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "angiofibroma", "meaning": "血管纤维瘤", "note": "", "answers": ["angiofibroma"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "angiostenosis", "meaning": "血管狭窄", "note": "narrowing of one or more blood vessels", "answers": ["angiostenosis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "vasography", "meaning": "血管造影术", "note": "X-ray study of the blood vessels", "answers": ["vasography"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "vasospasm", "meaning": "血管痉挛", "note": "spasmodic contraction of a blood vessel", "answers": ["vasospasm"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "vasculitis", "meaning": "脉管炎", "note": "inflammation of a blood vessel", "answers": ["vasculitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "vasculopathy", "meaning": "血管病变", "note": "any disease of the blood vessels", "answers": ["vasculopathy"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteritis", "meaning": "动脉炎", "note": "inflammation of an artery", "answers": ["arteritis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteralgia", "meaning": "动脉痛", "note": "pain in the artery", "answers": ["arteralgia"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteriomalacia", "meaning": "动脉软化", "note": "softening of the arteries", "answers": ["arteriomalacia"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arterionecrosis", "meaning": "动脉坏死", "note": "pathologic death of an artery or of arteries", "answers": ["arterionecrosis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteriosclerosis", "meaning": "动脉硬化", "note": "hardening and thickening of the arteries", "answers": ["arteriosclerosis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteriolar", "meaning": "小动脉的", "note": "pertaining to an arteriole or the arterioles", "answers": ["arteriolar"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "arteriolosclerosis", "meaning": "小动脉硬化", "note": "hardening and thickening of the walls of arterioles", "answers": ["arteriolosclerosis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "phlebitis", "meaning": "静脉炎", "note": "inflammation of the vein", "answers": ["phlebitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "endophlebitis", "meaning": "静脉内膜炎", "note": "", "answers": ["endophlebitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "phleborrhagia", "meaning": "静脉出血", "note": "bleeding from a vein", "answers": ["phleborrhagia"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "intravenous", "meaning": "经静脉的", "note": "within or administered into a vein", "answers": ["intravenous"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "venoclysis", "meaning": "静脉注射", "note": "injection of fluid into a vein", "answers": ["venoclysis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "venipuncture", "meaning": "静脉穿刺", "note": "puncture of a vein through the skin in order to withdraw blood", "answers": ["venipuncture"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "venisuture", "meaning": "静脉缝合", "note": "", "answers": ["venisuture"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "venulitis", "meaning": "小静脉炎", "note": "", "answers": ["venulitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "stethoscope", "meaning": "听诊器", "note": "", "answers": ["stethoscope"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "stethomyitis", "meaning": "胸肌炎", "note": "inflammation of the muscles of the chest wall", "answers": ["stethomyitis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "thoracostenosis", "meaning": "胸廓狭窄", "note": "abnormal narrowness of the chest wall", "answers": ["thoracostenosis"]}, {"unit": "Unit5", "category": "Medical terminology", "term": "thoracostomy", "meaning": "胸膜腔造口术", "note": "surgical formation of an opening into the chest cavity", "answers": ["thoracostomy"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "basophilic", "meaning": "嗜碱性的", "note": "", "answers": ["basophilic"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "basophil", "meaning": "嗜碱性粒细胞", "note": "a leukocyte with granules that are stained with basic dyes", "answers": ["basophil"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "basophilia", "meaning": "嗜碱性粒细胞增多症", "note": "an increase in the number of basophils in the circulating blood", "answers": ["basophilia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "eosinophilic", "meaning": "嗜酸性的", "note": "of or relating to eosinophils", "answers": ["eosinophilic"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "eosinophil", "meaning": "嗜酸性粒细胞", "note": "a leukocyte with granules that are stained with acid dyes", "answers": ["eosinophil"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "monocyte", "meaning": "单核细胞", "note": "an agranular phagocytic leukocyte / a large phagocytic leucocyte with a spherical nucleus and clear cytoplasm", "answers": ["monocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "lymphocyte", "meaning": "淋巴细胞", "note": "leukocyte in lymphoid tissue and blood", "answers": ["lymphocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "cytology", "meaning": "细胞学", "note": "the study of cells", "answers": ["cytology"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "cytoplasm", "meaning": "细胞质", "note": "", "answers": ["cytoplasm"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "erythrocyte", "meaning": "红细胞", "note": "red blood cell", "answers": ["erythrocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "erythroblast", "meaning": "成红血细胞", "note": "a nucleated cell occurring in bone marrow as the earliest recognizable cell of the erythrocytic series", "answers": ["erythroblast"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "erythropoietin", "meaning": "促红细胞生成素", "note": "a hormone that stimulates red blood cell production", "answers": ["erythropoietin"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "erythropoiesis", "meaning": "红细胞生成", "note": "formation of red blood cells", "answers": ["erythropoiesis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "erythroclasis", "meaning": "红细胞破碎", "note": "the breaking of red blood cells", "answers": ["erythroclasis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "granulocyte", "meaning": "粒细胞", "note": "a group of white blood cell having granules in the cytoplasm", "answers": ["granulocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "agranulocyte", "meaning": "非粒细胞", "note": "a white blood cell without granules in its cytoplasm", "answers": ["agranulocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "agranulocytosis", "meaning": "粒细胞缺乏症", "note": "a decrease in the number of granulocytes in the blood", "answers": ["agranulocytosis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemolysis", "meaning": "溶血", "note": "", "answers": ["hemolysis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemopathy", "meaning": "血液病", "note": "any disorder of blood", "answers": ["hemopathy"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemorrhage / profuse bleeding", "meaning": "出血", "note": "", "answers": ["hemorrhage", "profuse bleeding"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemophilia", "meaning": "血友病", "note": "excessive bleeding caused by hereditary lack of blood dotting factors", "answers": ["hemophilia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemoglobin", "meaning": "血红蛋白", "note": "the protein in the red blood cells of vertebrates that carries oxygen", "answers": ["hemoglobin"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemoglobinopathy", "meaning": "血红蛋白病", "note": "the presence of abnormal hemoglobins in the blood", "answers": ["hemoglobinopathy"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemopoiesis", "meaning": "造血", "note": "production of blood cells", "answers": ["hemopoiesis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hemostasis", "meaning": "止血", "note": "the stoppage of bleeding", "answers": ["hemostasis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hematocrit", "meaning": "血细胞比容", "note": "the percentage by volume of packed red blood cells in a given sample of blood after centrifugation", "answers": ["hematocrit"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hematology", "meaning": "血液学", "note": "the branch of medical science concerned with diseases of the blood and blood-forming tissues", "answers": ["hematology"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "karyotype", "meaning": "核型", "note": "the number and shape of chromosomes in the nucleus of a cell", "answers": ["karyotype"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "megakaryocyte", "meaning": "巨核细胞", "note": "", "answers": ["megakaryocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "polymorphonuclearf", "meaning": "多形核的", "note": "", "answers": ["polymorphonuclearf"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "multinucleate", "meaning": "多核的", "note": "having two or more nuclei", "answers": ["multinucleate"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "anucleate", "meaning": "无核的", "note": "lack a nucleus", "answers": ["anucleate"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "leukocyte", "meaning": "白细胞", "note": "white blood cell", "answers": ["leukocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "leukemia", "meaning": "白血病", "note": "a neoplastic overgrowth of white blood cells", "answers": ["leukemia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "leukopenia", "meaning": "白细胞减少", "note": "abnormal reduction of the number of leukocytes in the blood", "answers": ["leukopenia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "leukocytosis", "meaning": "白细胞增多", "note": "increase in the number of leukocytes in the blood", "answers": ["leukocytosis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "neutrophil", "meaning": "中性粒细胞", "note": "leukocyte that stains weakly with both acidic and basic dyes", "answers": ["neutrophil"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "neutrophilia", "meaning": "中性粒细胞增多", "note": "an abnormal increase in neutrophils", "answers": ["neutrophilia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "neutropenia", "meaning": "中性粒细胞减少", "note": "an abnormally low level of neutrophils in the circulating blood", "answers": ["neutropenia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "phagocyte", "meaning": "吞噬细胞", "note": "a cell that can ingest bacteria,foreign particles and other cells", "answers": ["phagocyte"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "phagocytosis", "meaning": "吞噬作用", "note": "the engulfing of foreign particles by a cell,such as a white blood cell", "answers": ["phagocytosis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombus", "meaning": "血栓", "note": "a clot of coagulated blood that forms within a blood vessel or inside the heart", "answers": ["thrombus"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hematoma", "meaning": "血肿", "note": "a mass formed during hemorrhages if the blood does not infiltrate the tissue", "answers": ["hematoma"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombosis", "meaning": "血栓形成", "note": "the formation,presence or development of a thrombus", "answers": ["thrombosis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombolytic", "meaning": "溶栓", "note": "dissolving a blood clot", "answers": ["thrombolytic"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombocyte / platelet", "meaning": "血小板", "note": "", "answers": ["thrombocyte", "platelet"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombocytopenia", "meaning": "血小板减少症", "note": "an abnormal reduction of the number of thrombocytes in the blood", "answers": ["thrombocytopenia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "thrombopoiesis", "meaning": "血小板生成", "note": "production of platelets", "answers": ["thrombopoiesis"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "anemia", "meaning": "贫血", "note": "disease with a deficient number or concentration in Hbs", "answers": ["anemia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hypoglycemia", "meaning": "低血糖", "note": "low blood sugar", "answers": ["hypoglycemia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "hyperglycemia", "meaning": "高血糖", "note": "excess of glucose in the blood", "answers": ["hyperglycemia"]}, {"unit": "Unit6", "category": "Medical terminology", "term": "leukoblast", "meaning": "未成熟白细胞", "note": "an immature granular leukocyte", "answers": ["leukoblast"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "uremia", "meaning": "尿毒症", "note": "toxic condition resulting from kidney disease", "answers": ["uremia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "urology", "meaning": "泌尿学", "note": "the branch of medicine concerned with the study and treatment of diseases of the urogenital tract", "answers": ["urology"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ureterography", "meaning": "输尿管造影术", "note": "X-ray examination of the ureter after injection of a contrast medium", "answers": ["ureterography"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ureterolithotomy", "meaning": "输尿管切开取石术", "note": "", "answers": ["ureterolithotomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ureterostenosis", "meaning": "输尿管狭窄", "note": "", "answers": ["ureterostenosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "urethralgia", "meaning": "尿道痛", "note": "pain in the urethra", "answers": ["urethralgia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "urethrorrhagia / urethral bleeding", "meaning": "尿道出血", "note": "", "answers": ["urethrorrhagia", "urethral bleeding"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "urethroscopy", "meaning": "尿道镜检查", "note": "examination of the urethra by means of a urethroscope", "answers": ["urethroscopy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "meatoscopy", "meaning": "尿道口镜检", "note": "the visual examination of a meatus,especially that of the urethra", "answers": ["meatoscopy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "meatotomy", "meaning": "尿道口切开术", "note": "incision of the urethral meatus especially to enlarge it", "answers": ["meatotomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "cystitis", "meaning": "膀胱炎", "note": "inflammation of the urinary bladder", "answers": ["cystitis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "cystocele", "meaning": "膀胱突出症", "note": "", "answers": ["cystocele"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "cholecystectomy", "meaning": "胆囊切除术", "note": "surgical removal of the gall bladder(usually for relief of gallstone pain)", "answers": ["cholecystectomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "vesicocele", "meaning": "膀胱膨出", "note": "hernia of the urinary bladder", "answers": ["vesicocele"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "vesiculitis", "meaning": "精囊炎", "note": "", "answers": ["vesiculitis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "vesiculotomy", "meaning": "精囊切开术", "note": "", "answers": ["vesiculotomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "circumrenal", "meaning": "肾周的", "note": "surrounding the kidney in whole or part", "answers": ["circumrenal"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "renculus", "meaning": "肾小叶", "note": "", "answers": ["renculus"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "renopathy", "meaning": "肾病", "note": "a disease affecting the kidneys", "answers": ["renopathy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nephrolith / renal calculus(stone)", "meaning": "肾结石", "note": "", "answers": ["nephrolith", "renal calculus(stone)"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nephrology", "meaning": "肾脏学", "note": "a branch of medicine concerned with the kidneys", "answers": ["nephrology"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nephrorrhagia", "meaning": "肾出血", "note": "hemorrhage from the kidney", "answers": ["nephrorrhagia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "glomerular", "meaning": "肾小球的", "note": "pertaining to or of a renal glomerulus", "answers": ["glomerular"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "glomerulitis", "meaning": "肾小球炎", "note": "inflammation of a glomerulus", "answers": ["glomerulitis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "glomerulonephritis", "meaning": "肾小球肾炎", "note": "", "answers": ["glomerulonephritis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyelonephritis", "meaning": "肾盂肾炎", "note": "inflammation of the kidney and its pelvis caused by bacterial infection", "answers": ["pyelonephritis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyelolithotomy", "meaning": "肾盂切开取石术", "note": "", "answers": ["pyelolithotomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyelogram", "meaning": "肾盂造影片", "note": "a radiograph or series of radiographs of the renal pelvis and ureter,following injection of contrast medium", "answers": ["pyelogram"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "adrenocorticotropin", "meaning": "促肾上腺皮质激素", "note": "a hormone secreted by the anterior lobe of the pituitary gland that stimulates the cortex of the adrenal gland to secrete its hormones,including corticosterone", "answers": ["adrenocorticotropin"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "corticosteroid", "meaning": "皮质类固醇", "note": "", "answers": ["corticosteroid"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "cortisol", "meaning": "皮质醇", "note": "", "answers": ["cortisol"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "medullary", "meaning": "髓质的；骨髓的", "note": "", "answers": ["medullary"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "medullectomy", "meaning": "髓质切除术", "note": "surgical excision of a medulla", "answers": ["medullectomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "calcitonin", "meaning": "降钙素", "note": "", "answers": ["calcitonin"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "calcinosis", "meaning": "钙质沉着症", "note": "", "answers": ["calcinosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "hypercalcemia", "meaning": "高血钙症", "note": "an excess of calcium in the blood", "answers": ["hypercalcemia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "lithotripsy", "meaning": "碎石术", "note": "crushing of a stone", "answers": ["lithotripsy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "lithogenesis", "meaning": "结石形成", "note": "the formation of calculi(stones)", "answers": ["lithogenesis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "lithotomy", "meaning": "切石术", "note": "surgical incision of the urinary bladder for removal of a stone", "answers": ["lithotomy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "azomycin", "meaning": "氮霉素", "note": "", "answers": ["azomycin"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "azotemia", "meaning": "氮血症", "note": "an excess of urea or other nitrogenous wastes in the blood as a result of kidney insufficiency", "answers": ["azotemia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "hypazoturia", "meaning": "低氮尿症", "note": "", "answers": ["hypazoturia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyogenesis", "meaning": "生脓的，化脓的", "note": "the formation of pus", "answers": ["pyogenesis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyorrhea", "meaning": "溢脓", "note": "a discharge of pus", "answers": ["pyorrhea"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "pyuria", "meaning": "脓尿", "note": "a condition characterized by pus in the urine", "answers": ["pyuria"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nocturia", "meaning": "夜尿症，遗尿症", "note": "urination at night especially when excessive", "answers": ["nocturia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nocturnal", "meaning": "夜间的", "note": "", "answers": ["nocturnal"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "oligotrophy / deficient nutrition", "meaning": "营养不足", "note": "", "answers": ["oligotrophy", "deficient nutrition"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "oligomenorrhea", "meaning": "月经稀发", "note": "", "answers": ["oligomenorrhea"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "oliguria", "meaning": "少尿", "note": "reduced excretion of urine", "answers": ["oliguria"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "polymyositis", "meaning": "多发性肌炎", "note": "", "answers": ["polymyositis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "polyphagia", "meaning": "贪食症", "note": "excessive appetite or eating", "answers": ["polyphagia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "polydipsia", "meaning": "烦渴", "note": "excessive or abnormal thirst", "answers": ["polydipsia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "gastroptosis", "meaning": "胃下垂", "note": "abnormal sagging of the stomach into the lower abdomen", "answers": ["gastroptosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nephroptosis", "meaning": "肾下垂", "note": "the medical condition in which the kidney does not remain fixed in its proper location but has abnormal mobility", "answers": ["nephroptosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "nephropexy", "meaning": "肾固定术", "note": "surgical fixation of a floating kidney", "answers": ["nephropexy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "hysteropexy", "meaning": "子宫固定术", "note": "surgical fixation of a displaced uterus", "answers": ["hysteropexy"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ketosteroid", "meaning": "酮甾类", "note": "", "answers": ["ketosteroid"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ketosis", "meaning": "酮病", "note": "", "answers": ["ketosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "ketoacidosis", "meaning": "酮症酸中毒", "note": "", "answers": ["ketoacidosis"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "albuminuria", "meaning": "蛋白尿", "note": "the presence of albumin in the urine", "answers": ["albuminuria"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "albuminemia", "meaning": "蛋白血症", "note": "", "answers": ["albuminemia"]}, {"unit": "Unit7", "category": "Medical terminology", "term": "albuminoid", "meaning": "类蛋白", "note": "", "answers": ["albuminoid"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "adenoma", "meaning": "腺瘤", "note": "neoplasm of a gland", "answers": ["adenoma"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "adenopathy", "meaning": "腺病", "note": "a diseased condition of a gland", "answers": ["adenopathy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "endocrinologist", "meaning": "内分泌学家", "note": "specialist in the study of hormone disorders", "answers": ["endocrinologist"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "exocrine", "meaning": "外分泌", "note": "", "answers": ["exocrine"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "secretodermatosis", "meaning": "皮肤分泌异常", "note": "", "answers": ["secretodermatosis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hypersecretion", "meaning": "高分泌", "note": "", "answers": ["hypersecretion"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hormonagogue", "meaning": "催激素剂", "note": "", "answers": ["hormonagogue"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hormonopoiesis", "meaning": "激素生成", "note": "", "answers": ["hormonopoiesis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pineal", "meaning": "松果体的", "note": "", "answers": ["pineal"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pinealoma", "meaning": "松果体瘤", "note": "the tumor of the pineal gland", "answers": ["pinealoma"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pituitectomy", "meaning": "垂体切除术", "note": "", "answers": ["pituitectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pituitarism", "meaning": "垂体机能障碍", "note": "", "answers": ["pituitarism"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hypopituitarism", "meaning": "垂体功能障碍", "note": "a condition caused by underactivity of the pituitary gland", "answers": ["hypopituitarism"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "thyroglobulin", "meaning": "甲状腺球蛋白", "note": "", "answers": ["thyroglobulin"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "thyrotoxicosis", "meaning": "甲状腺毒症", "note": "abnormal condition(poison) of the thyroid gland overactivity of the thyroid gland", "answers": ["thyrotoxicosis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "thyroiditis", "meaning": "甲状腺炎", "note": "inflammation of the thyroid gland", "answers": ["thyroiditis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hyperparathyroidism", "meaning": "甲状旁腺功能亢进症", "note": "increased secretion of parathyroid hormone", "answers": ["hyperparathyroidism"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "euthymism", "meaning": "胸腺机能正常", "note": "the state of having normal thymus function", "answers": ["euthymism"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "prothymocyte", "meaning": "前胸腺细胞", "note": "", "answers": ["prothymocyte"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pancrealgia", "meaning": "胰腺痛", "note": "", "answers": ["pancrealgia"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pancreatolysis", "meaning": "胰溶解", "note": "the destruction of the pancreas", "answers": ["pancreatolysis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "peripancreatitis", "meaning": "胰周炎", "note": "", "answers": ["peripancreatitis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "insulin", "meaning": "胰岛素", "note": "a substance that most people produce naturally in their body and that controls the level of sugar in their blood", "answers": ["insulin"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "insulinase", "meaning": "胰岛素酶", "note": "", "answers": ["insulinase"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "insulinoma", "meaning": "胰岛素瘤", "note": "", "answers": ["insulinoma"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "gonadoblastoma", "meaning": "成性腺细胞瘤", "note": "", "answers": ["gonadoblastoma"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "gonadotropin", "meaning": "促性腺激素", "note": "a hormone that stimulates growth and activity of the gonads", "answers": ["gonadotropin"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "ovariohysterectomy", "meaning": "卵巢子宫切除术", "note": "", "answers": ["ovariohysterectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "ovariorrhaphy", "meaning": "卵巢缝合术", "note": "surgical suture of the ovaries", "answers": ["ovariorrhaphy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "testitis", "meaning": "睾丸炎", "note": "", "answers": ["testitis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "testectomy", "meaning": "睾丸切除术", "note": "the testis is removed(or exercised)", "answers": ["testectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "testosterone", "meaning": "睾酮", "note": "", "answers": ["testosterone"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "iodimetry", "meaning": "碘量滴定法", "note": "", "answers": ["iodimetry"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "triiodothyronine", "meaning": "三碘甲状腺原氨酸", "note": "", "answers": ["triiodothyronine"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "tetraiodothyronine", "meaning": "甲状腺素/四碘甲状腺原氨酸", "note": "", "answers": ["tetraiodothyronine"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "androgen", "meaning": "雄激素", "note": "any steroid hormone producing male(characteristics)", "answers": ["androgen"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "androsterone", "meaning": "雄酮", "note": "", "answers": ["androsterone"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "estradiol", "meaning": "雌二醇", "note": "", "answers": ["estradiol"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "estrogen", "meaning": "雌激素", "note": "", "answers": ["estrogen"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "estrogenic", "meaning": "雌激素的", "note": "pertaining to producing female characteristics", "answers": ["estrogenic"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "glucocorticoid", "meaning": "糖皮质激素", "note": "", "answers": ["glucocorticoid"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "glucagon", "meaning": "胰高血糖素", "note": "", "answers": ["glucagon"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hyperglycemia", "meaning": "高血糖", "note": "excessive sugar in the blood", "answers": ["hyperglycemia"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "glycogenolysis", "meaning": "糖原分解", "note": "", "answers": ["glycogenolysis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "adrenocorticotropin", "meaning": "促肾上腺皮质激素", "note": "a hormone that acts on cells of the adrenal cortex,causing them to produce male sex hormones and hormones that control water and mineral balance in the body", "answers": ["adrenocorticotropin"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "corticoadrenal", "meaning": "肾上腺皮质的", "note": "pertaining to or arising from the adrenal cortex", "answers": ["corticoadrenal"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "adrenopathy", "meaning": "肾上腺病变", "note": "disease of the adrenal glands", "answers": ["adrenopathy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "somatotropin", "meaning": "促生长素", "note": "", "answers": ["somatotropin"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "dystrophy", "meaning": "营养不良", "note": "abnormal development or growth of a tissue or organ,usually resulting from nutritional deficiency", "answers": ["dystrophy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "myatrophy", "meaning": "肌肉萎缩", "note": "", "answers": ["myatrophy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "corticosteroid", "meaning": "皮质类固醇", "note": "a steroid produced by the cortex of the suprarenal gland", "answers": ["corticosteroid"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hypercholesteremia", "meaning": "高胆固醇血症", "note": "", "answers": ["hypercholesteremia"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "myxadenitis", "meaning": "粘液腺炎", "note": "", "answers": ["myxadenitis"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "myxedema", "meaning": "粘液水肿", "note": "decreased activity of the thyroid gland in adults", "answers": ["myxedema"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "acromegaly", "meaning": "肢端肥大症", "note": "disorder that results from excess growth hormone", "answers": ["acromegaly"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "acrodynia", "meaning": "肢痛", "note": "", "answers": ["acrodynia"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hypogonadism", "meaning": "性腺机能减退", "note": "a condition caused by undersecretion of the gonads condition of deficiency or underdevelopment of the sex organs", "answers": ["hypogonadism"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "adrenomegaly", "meaning": "肾上腺机能亢进", "note": "enlargement of the adrenals", "answers": ["adrenomegaly"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "parathyroidectomy", "meaning": "甲状旁腺切除术", "note": "surgical removal of the parathyroids", "answers": ["parathyroidectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "hypocalcemia", "meaning": "低钙血症", "note": "deficiency of calcium in the blood", "answers": ["hypocalcemia"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "thyroidectomy", "meaning": "甲状腺切除术", "note": "removal of the thyroid gland", "answers": ["thyroidectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "pancreatectomy", "meaning": "胰腺切除术", "note": "removal of the pancreas", "answers": ["pancreatectomy"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "endocrine", "meaning": "内分泌腺的", "note": "connected with the internal or hormonal secretion of a ductless gland", "answers": ["endocrine"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "thymoma", "meaning": "胸腺瘤", "note": "tumor of the thymus gland", "answers": ["thymoma"]}, {"unit": "Unit8", "category": "Medical terminology", "term": "ovary", "meaning": "卵巢", "note": "a person who has ovariorrhaphy underwent surgical suture of the ovary", "answers": ["ovary"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "atrium", "meaning": "心房", "note": "", "answers": ["atrium"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "ventricle", "meaning": "心室", "note": "", "answers": ["ventricle"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "mitral / bicuspid valve", "meaning": "二尖瓣", "note": "", "answers": ["mitral / bicuspid valve"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "semilunar valve", "meaning": "半月瓣", "note": "", "answers": ["semilunar valve"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "endocardium", "meaning": "心内膜", "note": "", "answers": ["endocardium"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "myocardium", "meaning": "心肌", "note": "", "answers": ["myocardium"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "epicardium", "meaning": "心外膜", "note": "", "answers": ["epicardium"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "pericardium", "meaning": "心包(膜)", "note": "", "answers": ["pericardium"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "pulmonary trunk", "meaning": "肺动脉干", "note": "", "answers": ["pulmonary trunk"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "stethoscope", "meaning": "听诊器", "note": "", "answers": ["stethoscope"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "murmur (", "meaning": "心脏)杂音", "note": "", "answers": ["murmur ("]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "pacemaker cell P", "meaning": "细胞(起搏细胞)", "note": "", "answers": ["pacemaker cell P"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "sinus /sinoatrial node", "meaning": "窦房结", "note": "", "answers": ["sinus /sinoatrial node"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "atrioventricular node", "meaning": "房室结", "note": "", "answers": ["atrioventricular node"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "aorta", "meaning": "主动脉", "note": "", "answers": ["aorta"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "common carotid artery", "meaning": "颈总动脉", "note": "", "answers": ["common carotid artery"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "coronary artery", "meaning": "冠状动脉", "note": "", "answers": ["coronary artery"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "capillary", "meaning": "毛细血管", "note": "", "answers": ["capillary"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "superior / inferior vena cava", "meaning": "上腔静脉/下腔静脉", "note": "", "answers": ["superior / inferior vena cava"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "systole", "meaning": "收缩期", "note": "", "answers": ["systole"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "diastole", "meaning": "舒张期", "note": "", "answers": ["diastole"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "myocardial infarction", "meaning": "心肌梗死", "note": "", "answers": ["myocardial infarction"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "stroke", "meaning": "卒中，中风", "note": "", "answers": ["stroke"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "subclavian artery", "meaning": "锁骨下动脉", "note": "", "answers": ["subclavian artery"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "brachiocephalic artery", "meaning": "头臂动脉", "note": "", "answers": ["brachiocephalic artery"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "general anesthesia", "meaning": "全身麻醉", "note": "", "answers": ["general anesthesia"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "echocardiogram", "meaning": "心回波图，超声心动图", "note": "", "answers": ["echocardiogram"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "mitral regurgitation", "meaning": "二尖瓣反流", "note": "", "answers": ["mitral regurgitation"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "cardioplegic solution", "meaning": "心脏停博液", "note": "", "answers": ["cardioplegic solution"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "infective endocarditis", "meaning": "感染性心内膜炎", "note": "", "answers": ["infective endocarditis"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "thermometer", "meaning": "温度计", "note": "", "answers": ["thermometer"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "sphygmomanometer", "meaning": "血压计", "note": "", "answers": ["sphygmomanometer"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "electrocardiograph", "meaning": "心电描记器，心电图机", "note": "", "answers": ["electrocardiograph"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "ophthalmoscope", "meaning": "检眼镜，眼底镜", "note": "", "answers": ["ophthalmoscope"]}, {"unit": "Unit5", "category": "Words & Phrases", "term": "otoscope", "meaning": "耳镜", "note": "", "answers": ["otoscope"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "alkaline", "meaning": "碱性的", "note": "", "answers": ["alkaline"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "plasma", "meaning": "血浆", "note": "", "answers": ["plasma"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "centrifuge", "meaning": "离心机", "note": "", "answers": ["centrifuge"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "erythrocyte", "meaning": "红细胞", "note": "", "answers": ["erythrocyte"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "leukocyte", "meaning": "白细胞", "note": "", "answers": ["leukocyte"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "platelet count", "meaning": "血小板计数", "note": "", "answers": ["platelet count"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "megakaryocyte", "meaning": "巨核细胞", "note": "", "answers": ["megakaryocyte"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "hematocrit", "meaning": "血细胞比容", "note": "", "answers": ["hematocrit"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "hemoglobin", "meaning": "血红蛋白", "note": "", "answers": ["hemoglobin"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "diffuse", "meaning": "扩散，弥漫", "note": "", "answers": ["diffuse"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "granulocyte", "meaning": "粒细胞", "note": "", "answers": ["granulocyte"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "osmotic pressure", "meaning": "渗透压", "note": "", "answers": ["osmotic pressure"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "phagocytosis", "meaning": "吞噬作用", "note": "", "answers": ["phagocytosis"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "interferon", "meaning": "干扰素", "note": "", "answers": ["interferon"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "systemic circulation", "meaning": "体循环", "note": "", "answers": ["systemic circulation"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "pulmonary circulation", "meaning": "肺循环", "note": "", "answers": ["pulmonary circulation"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "viscosity", "meaning": "粘稠度", "note": "", "answers": ["viscosity"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "agranulocyte", "meaning": "非粒细胞", "note": "", "answers": ["agranulocyte"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "multinucleate", "meaning": "多核的", "note": "", "answers": ["multinucleate"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "complement", "meaning": "补体", "note": "", "answers": ["complement"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "tachycardia", "meaning": "心动过速", "note": "", "answers": ["tachycardia"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "bradycardia", "meaning": "心动过缓", "note": "", "answers": ["bradycardia"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "brachial artery", "meaning": "臂动脉", "note": "", "answers": ["brachial artery"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "ruptured liver", "meaning": "肝脏破裂", "note": "", "answers": ["ruptured liver"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "laceration", "meaning": "撕裂伤", "note": "", "answers": ["laceration"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "cell salvage", "meaning": "细胞回收（围术期血液回收）", "note": "", "answers": ["cell salvage"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "autotransfusion", "meaning": "自体输血", "note": "", "answers": ["autotransfusion"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "anticoagulant", "meaning": "抗凝血药物", "note": "", "answers": ["anticoagulant"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "myelodysplastic syndrome", "meaning": "骨髓增生异常综合症", "note": "", "answers": ["myelodysplastic syndrome"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "megaloblastic anemia", "meaning": "巨幼细胞性贫血", "note": "", "answers": ["megaloblastic anemia"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "bone marrow aspiration", "meaning": "骨髓穿刺", "note": "", "answers": ["bone marrow aspiration"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "scalpel", "meaning": "解剖刀", "note": "", "answers": ["scalpel"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "surgical staples", "meaning": "手术钉", "note": "", "answers": ["surgical staples"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "hemostat", "meaning": "止血剂", "note": "", "answers": ["hemostat"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "dilator", "meaning": "扩张器", "note": "", "answers": ["dilator"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "curette", "meaning": "刮匙", "note": "", "answers": ["curette"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "retractors", "meaning": "牵开器", "note": "", "answers": ["retractors"]}, {"unit": "Unit6", "category": "Words & Phrases", "term": "probe", "meaning": "探针", "note": "", "answers": ["probe"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "ammonia", "meaning": "氨; 氨水", "note": "", "answers": ["ammonia"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "Bowman’s capsule", "meaning": "鲍氏囊；肾小球囊", "note": "", "answers": ["Bowman’s capsule"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "distal convoluted tubule", "meaning": "远曲小管；远侧肾曲小管", "note": "", "answers": ["distal convoluted tubule"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "glomerulus", "meaning": "肾小球", "note": "", "answers": ["glomerulus"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "hilum", "meaning": "肾门", "note": "", "answers": ["hilum"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "ion", "meaning": "离子", "note": "", "answers": ["ion"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "ligament", "meaning": "韧带", "note": "", "answers": ["ligament"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "medulla", "meaning": "髓质", "note": "", "answers": ["medulla"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "nephron", "meaning": "肾单位", "note": "", "answers": ["nephron"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "osmosis", "meaning": "渗透", "note": "", "answers": ["osmosis"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "peritoneum", "meaning": "腹膜", "note": "", "answers": ["peritoneum"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "phosphorus", "meaning": "磷", "note": "", "answers": ["phosphorus"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "proximal convoluted tubule", "meaning": "近曲小管", "note": "", "answers": ["proximal convoluted tubule"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "renal pelvis", "meaning": "肾盂", "note": "", "answers": ["renal pelvis"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "retroperitoneal", "meaning": "腹膜后的", "note": "", "answers": ["retroperitoneal"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "hematuria", "meaning": "血尿", "note": "", "answers": ["hematuria"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "dysuria", "meaning": "排尿困难", "note": "", "answers": ["dysuria"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "frequency", "meaning": "尿频", "note": "", "answers": ["frequency"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "urgency", "meaning": "尿急", "note": "", "answers": ["urgency"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "nocturia", "meaning": "夜尿症；遗尿症", "note": "", "answers": ["nocturia"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "lithotripsy", "meaning": "碎石术", "note": "", "answers": ["lithotripsy"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "percutaneous nephrolithotomy", "meaning": "经皮肾穿刺取石术", "note": "", "answers": ["percutaneous nephrolithotomy"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "urinary incontinence", "meaning": "尿失禁；遗尿", "note": "", "answers": ["urinary incontinence"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "endoscopic cervico-urethral disobstruction operation", "meaning": "内镜下膀胱尿道疏通术", "note": "", "answers": ["endoscopic cervico-urethral disobstruction operation"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "conservative therapy", "meaning": "保守疗法", "note": "", "answers": ["conservative therapy"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "artificial sphincter implantation", "meaning": "人工尿道括约肌植入术", "note": "", "answers": ["artificial sphincter implantation"]}, {"unit": "Unit7", "category": "Words & Phrases", "term": "uroflowmetry", "meaning": "尿流率测定术", "note": "", "answers": ["uroflowmetry"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "endocrine gland", "meaning": "内分泌腺", "note": "", "answers": ["endocrine gland"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "pituitary gland / hypophysis", "meaning": "垂体", "note": "", "answers": ["pituitary gland / hypophysis"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "hypothalamus", "meaning": "下丘脑", "note": "", "answers": ["hypothalamus"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "growth hormone / somatotropin", "meaning": "促生长激素", "note": "", "answers": ["growth hormone / somatotropin"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "prolactin", "meaning": "催乳素", "note": "", "answers": ["prolactin"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "adrenocorticotropic hormone", "meaning": "促肾上腺皮质激素", "note": "", "answers": ["adrenocorticotropic hormone"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "thyroid-stimulating hormone", "meaning": "促甲状腺素", "note": "", "answers": ["thyroid-stimulating hormone"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "antidiuretic hormone", "meaning": "抗利尿激素", "note": "", "answers": ["antidiuretic hormone"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "oxytocin", "meaning": "催产素", "note": "", "answers": ["oxytocin"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "androgen", "meaning": "雄激素", "note": "", "answers": ["androgen"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "estrogen", "meaning": "雌激素", "note": "", "answers": ["estrogen"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "thyroxine", "meaning": "甲状腺素", "note": "", "answers": ["thyroxine"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "calcitonin", "meaning": "降钙素", "note": "", "answers": ["calcitonin"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "parathormone", "meaning": "甲状旁腺激素", "note": "", "answers": ["parathormone"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "epinephrine", "meaning": "肾上腺素", "note": "", "answers": ["epinephrine"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "glycogen", "meaning": "糖原", "note": "", "answers": ["glycogen"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "glucagon", "meaning": "高血糖素", "note": "", "answers": ["glucagon"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "glucocorticoid", "meaning": "糖皮质激素", "note": "", "answers": ["glucocorticoid"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "adrenal cortex", "meaning": "肾上腺皮质", "note": "", "answers": ["adrenal cortex"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "adrenal medulla", "meaning": "肾上腺髓质", "note": "", "answers": ["adrenal medulla"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "Cushing`s Syndrome", "meaning": "库欣综合征", "note": "", "answers": ["Cushing`s Syndrome"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "micturition", "meaning": "排尿", "note": "", "answers": ["micturition"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "steroid", "meaning": "类固醇", "note": "", "answers": ["steroid"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "iatrogenic", "meaning": "医源性的", "note": "", "answers": ["iatrogenic"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "adrenal adenoma", "meaning": "肾上腺皮质腺瘤，肾上腺腺瘤", "note": "", "answers": ["adrenal adenoma"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "dyselectrolytemia", "meaning": "电解质紊乱", "note": "", "answers": ["dyselectrolytemia"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "adrenalectomy", "meaning": "肾上腺切除术", "note": "", "answers": ["adrenalectomy"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "parathyroidectomy", "meaning": "甲状旁腺切除术", "note": "", "answers": ["parathyroidectomy"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "cesarean", "meaning": "剖腹产术", "note": "", "answers": ["cesarean"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "euthyroid", "meaning": "甲状腺机能正常的", "note": "", "answers": ["euthyroid"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "serum calcium", "meaning": "血清钙", "note": "", "answers": ["serum calcium"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "normocalcemic", "meaning": "血钙正常的", "note": "", "answers": ["normocalcemic"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "scintigraphy", "meaning": "闪烁扫描术", "note": "", "answers": ["scintigraphy"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "radiotracer", "meaning": "放射示踪物；放射性示踪剂", "note": "", "answers": ["radiotracer"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "minimal invasive parathyroidectomy", "meaning": "微创甲状旁腺切除术", "note": "", "answers": ["minimal invasive parathyroidectomy"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "sternothyroid muscle", "meaning": "胸骨甲状肌", "note": "", "answers": ["sternothyroid muscle"]}, {"unit": "Unit8", "category": "Words & Phrases", "term": "recurrent laryngeal nerve", "meaning": "喉返神经", "note": "", "answers": ["recurrent laryngeal nerve"]}];
+    const CASES = [{"id": "Unit5-case-1", "unit": "Unit5", "english": "E.F. has petechiae in the conjunctivae and splinter hemorrhages in his nail beds. His blood pressure is 138/64, heart rate 80, respiratory rate 18, and temperature 99.5° F (37.5° C). Physical examination revealed a pansystolic murmur over the apex and left lower sternal border.", "translation": "E.F. 结膜可见瘀点，甲床可见裂片状出血。其血压为 138/64 mmHg，心率 80 次/分，呼吸频率 18 次/分，体温 99.5°F，即 37.5°C。体格检查发现心尖部及左下胸骨缘可闻及全收缩期杂音。", "keywords": []}, {"id": "Unit5-case-2", "unit": "Unit5", "english": "Transthoracic echocardiography revealed a vegetation with size of 0.9 cm over the anterior leaflet of mitral valve, and moderate mitral regurgitation. However, the cardiac systolic and diastolic functions were normal.", "translation": "经胸超声心动图显示，二尖瓣前叶可见一处大小为 0.9 cm 的赘生物，并伴有中度二尖瓣反流。然而，患者心脏收缩功能和舒张功能均正常。", "keywords": [{"term": "mitral regurgitation", "meaning": "二尖瓣反流"}]}, {"id": "Unit5-case-3", "unit": "Unit5", "english": "E.F. is sent to the hospital for further workup and treatment and his blood culture results are positive for Staphylococcus aureus. E.F. is started on IV antibiotics and seems to be resting comfortably.", "translation": "E.F. 被送往医院接受进一步检查和治疗，其血培养结果显示金黄色葡萄球菌阳性。E.F. 开始接受静脉抗生素治疗，目前休息状态良好。", "keywords": []}, {"id": "Unit5-case-4", "unit": "Unit5", "english": "E.F. has completed a week of IV antibiotic therapy in the hospital setting. He is afebrile and feeling better. Social services has arranged home IV antibiotic therapy in anticipation of discharge to home.", "translation": "E.F. 已在医院完成一周的静脉抗生素治疗。他已无发热，且自觉症状好转。社会服务部门已安排其出院回家后继续接受家庭静脉抗生素治疗。", "keywords": []}, {"id": "Unit5-case-5", "unit": "Unit5", "english": "A.L. was diagnosed with mitral prolapse with regurgitation and was transferred to the operating room, placed in a supine position, and given general endotracheal anesthesia. Her pericardium was entered longitudinally through a median sternotomy.", "translation": "A.L. 被诊断为二尖瓣脱垂伴反流，随后被转入手术室，取仰卧位，并接受气管内插管全身麻醉。经正中胸骨切开后，纵行切开心包。", "keywords": [{"term": "pericardium", "meaning": "心包(膜)"}]}, {"id": "Unit5-case-6", "unit": "Unit5", "english": "Extracorporeal circulation was established. The aorta was cross-clamped, and cardioplegic solution (to stop the heartbeat) was given into the aortic root intermittently for myocardial protection.", "translation": "建立体外循环。阻断主动脉，并间断向主动脉根部灌注心脏停搏液，以停止心跳并保护心肌。", "keywords": [{"term": "aortic", "meaning": "主动脉的"}, {"term": "aorta", "meaning": "主动脉"}, {"term": "cardioplegic solution", "meaning": "心脏停博液"}]}, {"id": "Unit5-case-7", "unit": "Unit5", "english": "The left atrium was entered via the interatrial groove on the right, exposing the mitral valve. The middle scallop of the posterior leaflet was resected. The remaining leaflets were removed to the areas of the commissures and preserved for the sliding plasty.", "translation": "经右侧房间沟进入左心房，显露二尖瓣。切除后瓣叶中间扇形部。其余瓣叶被游离至连合部区域，并予以保留，用于滑动成形术。", "keywords": [{"term": "atrium", "meaning": "心房"}]}, {"id": "Unit5-case-8", "unit": "Unit5", "english": "The valve was tested by inflating the ventricle with NSS and proved to be competent. The left atrium was closed with continuous No. 4-0 Prolene suture. Air was removed from the heart. The cross-clamp was removed. Cardiac action resumed with normal sinus rhythm.", "translation": "通过向心室内注入生理盐水测试瓣膜，结果显示瓣膜关闭良好。用 4-0 Prolene 连续缝线关闭左心房。排出心腔内气体。解除主动脉阻断后，心脏恢复活动，并呈正常窦性心律。", "keywords": [{"term": "atrium", "meaning": "心房"}, {"term": "ventricle", "meaning": "心室"}]}, {"id": "Unit5-case-9", "unit": "Unit5", "english": "Protamine was given to counteract the heparin. Pacer wires were placed in the right atrium and ventricle. Silicone catheters were placed in the pleural and substernal spaces. The sternum and soft tissue wound was closed.", "translation": "给予鱼精蛋白以拮抗肝素作用。在右心房和右心室放置起搏导线。在胸膜腔及胸骨后间隙放置硅胶引流管。随后关闭胸骨及软组织切口。", "keywords": [{"term": "atrium", "meaning": "心房"}, {"term": "ventricle", "meaning": "心室"}]}, {"id": "Unit6-case-1", "unit": "Unit6", "english": "During surgery, the ruptured segment of the liver was removed, and the laceration was sutured with a heavy, absorbable suture on a large smooth needle.", "translation": "手术过程中，切除了肝脏破裂部分，并使用大号光滑针和粗的可吸收缝线缝合裂伤处。", "keywords": [{"term": "laceration", "meaning": "撕裂伤"}]}, {"id": "Unit6-case-2", "unit": "Unit6", "english": "She also received six units of homologous, leukocyte-reduced whole blood, five units of fresh frozen plasma, and two units of platelets.", "translation": "她还接受了 6 个单位的同种异体去白细胞全血、5 个单位的新鲜冰冻血浆以及 2 个单位的血小板输注。", "keywords": [{"term": "leukocyte", "meaning": "白细胞"}, {"term": "plasma", "meaning": "血浆"}]}, {"id": "Unit6-case-3", "unit": "Unit6", "english": "The lab informed her surgeon that they had two units of B-negative and six units of O-negative blood, which she could have received safely if she needed more blood during the night.", "translation": "实验室通知外科医生，他们备有 2 个单位 B 型 Rh 阴性血和 6 个单位 O 型 Rh 阴性血；如果夜间患者需要更多输血，这些血液可安全输注。", "keywords": []}, {"id": "Unit6-case-4", "unit": "Unit6", "english": "Complete blood count found megaloblastic anemia and bone marrow aspiration revealed abnormal localization of immature precursor.", "translation": "全血细胞计数检查发现巨幼细胞性贫血，骨髓穿刺显示未成熟前体细胞定位异常。", "keywords": [{"term": "anemia", "meaning": "贫血"}, {"term": "megaloblastic anemia", "meaning": "巨幼细胞性贫血"}, {"term": "bone marrow aspiration", "meaning": "骨髓穿刺"}]}, {"id": "Unit6-case-5", "unit": "Unit6", "english": "Two weeks before admission, he developed chills, fever, night sweats and malodorous discharge from a spontaneous presacral ulcer, associated with mild local pain. Vancomycin, levofloxacin, and metronidazole were given intravenously.", "translation": "入院前两周，患者出现寒战、发热、盗汗，并有自发性骶前溃疡流出恶臭分泌物，伴轻度局部疼痛。给予万古霉素、左氧氟沙星和甲硝唑静脉治疗。", "keywords": []}, {"id": "Unit6-case-6", "unit": "Unit6", "english": "The specimen obtained from the bone marrow biopsy was markedly hypercellular and contained predominantly large cells with folded nuclei and moderate amounts of pale cytoplasm containing Auer rods, the characteristic of monoblasts.", "translation": "骨髓活检所获标本显示骨髓细胞显著增多，主要为体积较大的细胞，细胞核呈折叠状，胞质中等量且淡染，并含有 Auer 小体，这是单核母细胞的特征。", "keywords": [{"term": "cytoplasm", "meaning": "细胞质"}]}, {"id": "Unit7-case-1", "unit": "Unit7", "english": "An IV urogram showed a right staghorn calculus. The diagnosis was further confirmed by a renal ultrasound. A renal flow scan showed normal perfusion and no obstruction.", "translation": "静脉尿路造影显示右肾鹿角形结石。肾脏超声进一步证实了该诊断。肾血流扫描显示灌注正常，无梗阻。", "keywords": []}, {"id": "Unit7-case-2", "unit": "Unit7", "english": "A.A. was transferred to surgery for a cystoscopic ureteral laser lithotripsy, insertion of a right retrograde ureteral catheter, and right percutaneous nephrolithotomy.", "translation": "A.A. 被转入外科，接受膀胱镜下输尿管激光碎石术、右侧逆行输尿管导管置入术以及右侧经皮肾镜取石术。", "keywords": [{"term": "lithotripsy", "meaning": "碎石术"}, {"term": "percutaneous nephrolithotomy", "meaning": "经皮肾穿刺取石术"}]}, {"id": "Unit7-case-3", "unit": "Unit7", "english": "Therefore, hospitalization was carried out during which the patient underwent the case evaluations in order to confirm the possibility of an artificial sphincter implantation.", "translation": "因此，患者住院接受病例评估，以确认是否适合植入人工尿道括约肌。", "keywords": [{"term": "artificial sphincter implantation", "meaning": "人工尿道括约肌植入术"}]}, {"id": "Unit7-case-4", "unit": "Unit7", "english": "Such evaluations gave evidence of a high excretory duct within normal limits; the bladder showed normal capacity in the absence of refluxes and mainly in the absence of residual intravesical obstructions with a complete reservoir emptying.", "translation": "这些评估结果显示，排泄管道位置较高但在正常范围内；膀胱容量正常，无反流，且主要未见残余膀胱内梗阻，储尿囊可完全排空。", "keywords": []}, {"id": "Unit7-case-5", "unit": "Unit7", "english": "As the follow-up examination carried out the patient confirmed a perfect continence with good flow and a prosthesis activity which appeared to be normal. The patient had to compress the pump only once and apparently a good filling of the cuff was reached after miction.", "translation": "随访检查中，患者确认尿控完全，尿流良好，假体活动看似正常。患者排尿后仅需按压泵一次，袖套似乎即可达到良好充盈。", "keywords": []}, {"id": "Unit8-case-1", "unit": "Unit8", "english": "The case pertains to a 42-year-old Caucasian female patient, who was admitted in our department due to general weakness, along with incidents of vague abdominal pain for the past 8 months. Her medical history included 2 Cesarean sections, and she was a periodical smoker. Physical examination was proven unremarkable.", "translation": "本病例为一名 42 岁白人女性患者，因全身乏力入院，同时过去 8 个月反复出现隐约腹痛。其既往病史包括两次剖宫产，并有间断吸烟史。体格检查未见明显异常。", "keywords": [{"term": "cesarean", "meaning": "剖腹产术"}]}, {"id": "Unit8-case-2", "unit": "Unit8", "english": "A complete laboratory scan was performed, which demonstrated normal hematocrit and hemoglobin values. Her thyroid hormones revealed an euthyroid state, with TSH, T3 and T4 being within normal limits.", "translation": "完整实验室检查显示，其血细胞比容和血红蛋白水平均正常。甲状腺激素检查提示甲状腺功能正常，TSH、T3 和 T4 均在正常范围内。", "keywords": [{"term": "hemoglobin", "meaning": "血红蛋白"}, {"term": "hematocrit", "meaning": "血细胞比容"}, {"term": "euthyroid", "meaning": "甲状腺机能正常的"}]}, {"id": "Unit8-case-3", "unit": "Unit8", "english": "An ultrasound scan of her neck revealed a normal sized thyroid gland, while an enlarged parathyroid was located on the left lower side of her cervical region, with its dimensions approximately 3×2 cm.", "translation": "颈部超声显示甲状腺大小正常，但在颈部左下方发现一枚增大的甲状旁腺，大小约为 3×2 cm。", "keywords": []}, {"id": "Unit8-case-4", "unit": "Unit8", "english": "Resection of the giant gland was performed by a general surgeon experienced in thyroid surgery through implementation of minimal invasive parathyroidectomy. A small left-sided thyroid incision was performed, approximately 2 cm in length.", "translation": "由一名具有甲状腺手术经验的普通外科医生实施微创甲状旁腺切除术，切除了该巨大腺体。在左侧甲状腺区域作一约 2 cm 长的小切口。", "keywords": [{"term": "parathyroidectomy", "meaning": "甲状旁腺切除术"}, {"term": "minimal invasive parathyroidectomy", "meaning": "微创甲状旁腺切除术"}]}, {"id": "Unit8-case-5", "unit": "Unit8", "english": "After lateral retraction of the sternothyroid muscle and manipulation of the left thyroid lobe, the gross parathyroid adenoma was located, attached on the posterior side of the left lower lobe of her thyroid.", "translation": "将胸骨甲状肌向外侧牵开，并处理左侧甲状腺叶后，在左侧甲状腺下叶后方发现明显增大的甲状旁腺腺瘤，并与其相连。", "keywords": [{"term": "adenoma", "meaning": "腺瘤"}, {"term": "sternothyroid muscle", "meaning": "胸骨甲状肌"}]}, {"id": "Unit8-case-6", "unit": "Unit8", "english": "Careful resection of the gland was performed with identification of the left recurrent laryngeal nerve. The excised specimen was sent for pathologic examination, which was indeed significant for a giant 3×2 cm parathyroid adenoma.", "translation": "在确认左侧喉返神经后，小心切除该腺体。切除标本送病理检查，结果证实为一枚 3×2 cm 的巨大甲状旁腺腺瘤。", "keywords": [{"term": "adenoma", "meaning": "腺瘤"}, {"term": "recurrent laryngeal nerve", "meaning": "喉返神经"}]}, {"id": "Unit8-case-7", "unit": "Unit8", "english": "The postoperative period was uneventful for the patient, with a slight decline in calcium, and her parathormone levels returned within normal limits approximately 8 hours after surgery. She was discharged on the next day, while at 3 month follow up she reported no further symptoms.", "translation": "患者术后过程顺利，仅出现轻度血钙下降；术后约 8 小时，甲状旁腺激素水平恢复至正常范围。患者次日出院，3 个月随访时未再报告相关症状。", "keywords": [{"term": "parathormone", "meaning": "甲状旁腺激素"}]}, {"id": "Unit8-case-8", "unit": "Unit8", "english": "A 4 years old boy presented with complaints of excessive weight gain of 5 months duration and increased frequency of micturition and appearance of body hair for 4 months. There was no history of any other illness, medication or steroid intake. The child was first born at term by normal vaginal delivery and with a birth weight of 3 kg.", "translation": "一名 4 岁男孩因体重过度增加 5 个月、排尿频率增加及体毛出现 4 个月就诊。既往无其他疾病、用药或类固醇摄入史。该患儿为第一胎，足月经阴道正常分娩，出生体重 3 kg。", "keywords": [{"term": "frequency", "meaning": "尿频"}, {"term": "micturition", "meaning": "排尿"}, {"term": "steroid", "meaning": "类固醇"}]}, {"id": "Unit8-case-9", "unit": "Unit8", "english": "Physical examination revealed a chubby boy with moon face, buffalo hump, protruding abdomen, increased body hair and appearance of coarse pubic hair. His intelligence quotient was appropriate for his age and sex.", "translation": "体格检查显示，该男孩体型肥胖，呈满月脸、水牛背、腹部膨隆、体毛增多，并出现粗硬阴毛。其智商与年龄和性别相符。", "keywords": []}, {"id": "Unit8-case-10", "unit": "Unit8", "english": "Adrenal tumor is the common cause of this syndrome in young children, whereas, iatrogenic causes are more common among older children. This 4-year-old male child was diagnosed with Cushing’s syndrome due to a right adrenal adenoma; the child presented with obesity and increased distribution of body hair.", "translation": "肾上腺肿瘤是幼儿发生该综合征的常见原因，而医源性原因在年龄较大的儿童中更为常见。该 4 岁男孩被诊断为右侧肾上腺腺瘤所致库欣综合征，表现为肥胖和体毛分布增多。", "keywords": [{"term": "adenoma", "meaning": "腺瘤"}, {"term": "iatrogenic", "meaning": "医源性的"}, {"term": "adrenal adenoma", "meaning": "肾上腺皮质腺瘤，肾上腺腺瘤"}]}, {"id": "Unit8-case-11", "unit": "Unit8", "english": "After thorough investigation and control of hypertension and dyselectrolytemia, right adrenalectomy was performed. The patient had good clinical recovery with weight loss and biochemical resolution of Cushing’s syndrome.", "translation": "在完成全面检查并控制高血压和电解质紊乱后，患者接受右侧肾上腺切除术。术后患者临床恢复良好，体重下降，库欣综合征的生化异常得到缓解。", "keywords": [{"term": "dyselectrolytemia", "meaning": "电解质紊乱"}, {"term": "adrenalectomy", "meaning": "肾上腺切除术"}]}];
     const STORAGE_KEY = "english-vocabulary-practice-v1";
+    const CASE_STORAGE_KEY = "english-case-translation-v1";
     const units = [...new Set(VOCAB.map(item => item.unit))].sort();
+    const caseUnits = [...new Set(CASES.map(item => item.unit))].sort();
     const categories = ["Medical terminology", "Words & Phrases"];
     let state = {
       unit: units[0],
@@ -276,10 +362,19 @@
       submitted: false,
       pool: []
     };
+    let caseState = {
+      unit: caseUnits[0],
+      mode: "practice",
+      index: 0,
+      submitted: false,
+      showHints: false,
+      pool: []
+    };
     let progress = loadProgress();
+    let caseProgress = loadCaseProgress();
 
     const $ = id => document.getElementById(id);
-    const screens = ["homeScreen", "categoryScreen", "practiceScreen"];
+    const screens = ["homeScreen", "categoryScreen", "practiceScreen", "casePracticeScreen"];
 
     function keyOf(item) {
       return `${item.unit}|${item.category}|${item.term}|${item.meaning}`;
@@ -295,6 +390,18 @@
 
     function saveProgress() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function loadCaseProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(CASE_STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveCaseProgress() {
+      localStorage.setItem(CASE_STORAGE_KEY, JSON.stringify(caseProgress));
     }
 
     function record(item, correct) {
@@ -341,6 +448,22 @@
           $("categoryTitle").textContent = state.unit;
           renderCategories();
           showScreen("categoryScreen");
+        });
+      });
+      $("caseUnitGrid").innerHTML = caseUnits.map(unit => {
+        const count = CASES.filter(item => item.unit === unit).length;
+        return `<button class="tile" data-case-unit="${unit}"><strong>${unit}</strong><span>${count} 个翻译句</span></button>`;
+      }).join("");
+      document.querySelectorAll("[data-case-unit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          caseState.unit = btn.dataset.caseUnit;
+          caseState.mode = "practice";
+          caseState.index = 0;
+          caseState.submitted = false;
+          caseState.showHints = false;
+          refreshCasePool();
+          showScreen("casePracticeScreen");
+          renderCasePractice();
         });
       });
     }
@@ -561,8 +684,13 @@
     }
 
     function handleEnter() {
-      if (!document.getElementById("practiceScreen").classList.contains("active")) return;
-      mainAction();
+      if (document.getElementById("practiceScreen").classList.contains("active")) {
+        mainAction();
+        return;
+      }
+      if (document.getElementById("casePracticeScreen").classList.contains("active")) {
+        caseMainAction();
+      }
     }
 
     function shufflePool() {
@@ -577,12 +705,198 @@
       renderPractice();
     }
 
+    function caseKeyOf(item) {
+      return item.id;
+    }
+
+    function scopedCases() {
+      return CASES.filter(item => item.unit === caseState.unit);
+    }
+
+    function activeCases() {
+      const base = scopedCases();
+      if (caseState.mode !== "mistakes") return base;
+      return base.filter(item => caseProgress[caseKeyOf(item)]?.wrong);
+    }
+
+    function refreshCasePool() {
+      caseState.pool = activeCases();
+      if (caseState.index >= caseState.pool.length) caseState.index = 0;
+    }
+
+    function currentCase() {
+      refreshCasePool();
+      return caseState.pool[caseState.index];
+    }
+
+    function recordCase(item, level) {
+      const key = caseKeyOf(item);
+      const row = caseProgress[key] || { seen: 0, good: 0, wrong: false, last: "", level: "" };
+      row.seen += 1;
+      row.level = level;
+      row.last = new Date().toISOString();
+      if (level === "good") {
+        row.good += 1;
+        row.wrong = false;
+      } else {
+        row.wrong = true;
+      }
+      caseProgress[key] = row;
+      saveCaseProgress();
+    }
+
+    function setCaseWrong(item, wrong) {
+      const key = caseKeyOf(item);
+      const row = caseProgress[key] || { seen: 0, good: 0, wrong: false, last: "", level: "" };
+      row.wrong = wrong;
+      caseProgress[key] = row;
+      saveCaseProgress();
+    }
+
+    function updateCaseStats() {
+      const items = scopedCases();
+      let seen = 0, good = 0, wrong = 0;
+      for (const item of items) {
+        const row = caseProgress[caseKeyOf(item)];
+        if (row?.seen) seen += 1;
+        if (row?.good) good += 1;
+        if (row?.wrong) wrong += 1;
+      }
+      $("caseTotalStat").textContent = items.length;
+      $("caseSeenStat").textContent = seen;
+      $("caseGoodStat").textContent = good;
+      $("caseWrongStat").textContent = wrong;
+    }
+
+    function renderCaseMistakes() {
+      const wrongItems = scopedCases().filter(item => caseProgress[caseKeyOf(item)]?.wrong);
+      $("caseMistakeList").innerHTML = wrongItems.length ? wrongItems.map(item => `
+        <div class="list-item">
+          <strong>${escapeHtml(item.english)}</strong>
+          <span>${escapeHtml(item.translation)}</span>
+        </div>
+      `).join("") : `<div class="muted">暂无错句</div>`;
+    }
+
+    function renderKeywords(item) {
+      if (!caseState.showHints && !caseState.submitted && caseState.mode !== "compare") return "";
+      if (!item.keywords.length) return `<div class="muted">暂无关键词</div>`;
+      return `<div class="keywords">${item.keywords.map(k => `<span class="keyword">${escapeHtml(k.term)}：${escapeHtml(k.meaning)}</span>`).join("")}</div>`;
+    }
+
+    function renderCasePractice() {
+      document.querySelectorAll("[data-case-mode]").forEach(btn => btn.classList.toggle("active", btn.dataset.caseMode === caseState.mode));
+      refreshCasePool();
+      updateCaseStats();
+      renderCaseMistakes();
+      const item = currentCase();
+      $("caseScope").textContent = `${caseState.unit} / Case Translation`;
+      $("casePositionText").textContent = caseState.pool.length ? `${caseState.index + 1} / ${caseState.pool.length}` : "0 / 0";
+      $("caseFeedback").textContent = "";
+      $("caseFeedback").className = "feedback";
+      $("casePrevBtn").disabled = !item || caseState.pool.length < 2;
+      $("caseNextBtn").disabled = !item || caseState.pool.length < 2;
+      $("caseHintBtn").disabled = !item;
+      $("caseGoodBtn").disabled = !item || !caseState.submitted;
+      $("caseUnsureBtn").disabled = !item || !caseState.submitted;
+      $("caseBadBtn").disabled = !item || !caseState.submitted;
+      if (!item) {
+        $("casePromptLabel").textContent = "没有可练习的项目";
+        $("caseEnglish").textContent = caseState.mode === "mistakes" ? "当前没有错句" : "这个 Unit 暂无病例翻译内容";
+        $("caseAnswerArea").innerHTML = "";
+        $("caseMainBtn").disabled = true;
+        return;
+      }
+      $("caseMainBtn").disabled = false;
+      $("casePromptLabel").textContent = caseState.mode === "compare" ? "对照模式" : "英译中";
+      $("caseEnglish").textContent = item.english;
+      $("caseMainBtn").textContent = caseState.submitted || caseState.mode === "compare" ? "下一个" : "提交";
+      const reference = (caseState.submitted || caseState.mode === "compare")
+        ? `<div class="reference"><strong>参考译文：</strong>${escapeHtml(item.translation)}</div>`
+        : "";
+      const input = caseState.mode === "compare" ? "" : `
+        <textarea id="caseInput" enterkeyhint="done" autocomplete="off" placeholder="输入你的中文翻译。按回车提交，Shift+Enter 换行。"></textarea>
+      `;
+      $("caseAnswerArea").innerHTML = `${input}${reference}${renderKeywords(item)}`;
+      const textarea = $("caseInput");
+      if (textarea) {
+        textarea.focus();
+        textarea.addEventListener("keydown", event => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            handleEnter();
+          }
+        });
+      }
+    }
+
+    function submitCaseTranslation() {
+      const item = currentCase();
+      if (!item) return;
+      caseState.submitted = true;
+      caseState.showHints = true;
+      renderCasePractice();
+      $("caseFeedback").textContent = "对照参考译文后自评分";
+    }
+
+    function nextCase() {
+      refreshCasePool();
+      if (!caseState.pool.length) {
+        renderCasePractice();
+        return;
+      }
+      caseState.index = (caseState.index + 1) % caseState.pool.length;
+      caseState.submitted = false;
+      caseState.showHints = false;
+      renderCasePractice();
+    }
+
+    function prevCase() {
+      refreshCasePool();
+      if (!caseState.pool.length) return;
+      caseState.index = (caseState.index - 1 + caseState.pool.length) % caseState.pool.length;
+      caseState.submitted = false;
+      caseState.showHints = false;
+      renderCasePractice();
+    }
+
+    function caseMainAction() {
+      if (caseState.mode === "compare" || caseState.submitted) {
+        nextCase();
+      } else {
+        submitCaseTranslation();
+      }
+    }
+
     $("homeBtn").addEventListener("click", () => showScreen("homeScreen"));
     $("backToUnits").addEventListener("click", () => showScreen("homeScreen"));
     $("mainBtn").addEventListener("click", mainAction);
     $("nextBtn").addEventListener("click", nextItem);
     $("prevBtn").addEventListener("click", prevItem);
     $("shuffleBtn").addEventListener("click", shufflePool);
+    $("caseMainBtn").addEventListener("click", caseMainAction);
+    $("caseNextBtn").addEventListener("click", nextCase);
+    $("casePrevBtn").addEventListener("click", prevCase);
+    $("caseHintBtn").addEventListener("click", () => {
+      caseState.showHints = !caseState.showHints;
+      renderCasePractice();
+    });
+    $("caseGoodBtn").addEventListener("click", () => {
+      const item = currentCase();
+      if (item) recordCase(item, "good");
+      nextCase();
+    });
+    $("caseUnsureBtn").addEventListener("click", () => {
+      const item = currentCase();
+      if (item) recordCase(item, "unsure");
+      nextCase();
+    });
+    $("caseBadBtn").addEventListener("click", () => {
+      const item = currentCase();
+      if (item) recordCase(item, "bad");
+      nextCase();
+    });
     $("knowBtn").addEventListener("click", () => {
       const item = currentItem();
       if (item) {
@@ -608,23 +922,39 @@
         renderPractice();
       });
     });
+    document.querySelectorAll("[data-case-mode]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        caseState.mode = btn.dataset.caseMode;
+        caseState.index = 0;
+        caseState.submitted = false;
+        caseState.showHints = false;
+        renderCasePractice();
+      });
+    });
     $("clearMistakes").addEventListener("click", () => {
       scopedItems().forEach(item => setWrong(item, false));
       renderPractice();
     });
+    $("clearCaseMistakes").addEventListener("click", () => {
+      scopedCases().forEach(item => setCaseWrong(item, false));
+      renderCasePractice();
+    });
     $("resetBtn").addEventListener("click", () => {
       if (confirm("确定清空全部学习进度？")) {
         progress = {};
+        caseProgress = {};
         saveProgress();
-        renderPractice();
+        saveCaseProgress();
+        if (document.getElementById("practiceScreen").classList.contains("active")) renderPractice();
+        if (document.getElementById("casePracticeScreen").classList.contains("active")) renderCasePractice();
       }
     });
     $("exportBtn").addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(progress, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify({ vocabulary: progress, cases: caseProgress }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "vocabulary-progress.json";
+      a.download = "english-study-progress.json";
       a.click();
       URL.revokeObjectURL(url);
     });
