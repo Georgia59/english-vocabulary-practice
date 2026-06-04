@@ -267,6 +267,17 @@
       flex-wrap: wrap;
       align-items: center;
     }
+    .speech-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .speech-row button {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 13px;
+    }
     input[type="text"] {
       flex: 1 1 260px;
       width: 100%;
@@ -428,7 +439,7 @@
         gap: 8px;
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .top-actions button { width: 100%; }
       main { padding: 14px 16px 32px; }
@@ -475,6 +486,7 @@
     <h1>English Vocabulary Practice</h1>
     <div class="top-actions">
       <button id="homeBtn">首页</button>
+      <button id="stopSpeechBtn">停止朗读</button>
       <button id="exportBtn">导出进度</button>
       <button id="resetBtn" class="danger">清空全部进度</button>
     </div>
@@ -696,6 +708,88 @@
       $("resetBtn").hidden = id !== "homeScreen";
     }
 
+    let speechVoices = [];
+
+    function loadSpeechVoices() {
+      if (!("speechSynthesis" in window)) return [];
+      speechVoices = window.speechSynthesis.getVoices();
+      return speechVoices;
+    }
+
+    if ("speechSynthesis" in window) {
+      loadSpeechVoices();
+      window.speechSynthesis.onvoiceschanged = loadSpeechVoices;
+    }
+
+    function showSpeechMessage(message) {
+      const target = document.getElementById("casePracticeScreen").classList.contains("active") ? $("caseFeedback") : $("feedback");
+      if (target) {
+        target.textContent = message;
+        target.className = "feedback bad";
+      } else {
+        alert(message);
+      }
+    }
+
+    function selectEnglishVoice(preferredLang = "en-US") {
+      const voices = speechVoices.length ? speechVoices : loadSpeechVoices();
+      return voices.find(voice => voice.lang === preferredLang)
+        || voices.find(voice => voice.lang === "en-US")
+        || voices.find(voice => voice.lang === "en-GB")
+        || voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith("en-"))
+        || null;
+    }
+
+    function speakText(text, options = {}) {
+      const clean = String(text || "").trim();
+      if (!clean) return;
+      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+        showSpeechMessage("当前浏览器不支持语音朗读。请尝试使用 Chrome、Edge 或 Safari。");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(clean);
+      utterance.lang = options.lang || "en-US";
+      utterance.rate = options.rate ?? 0.85;
+      utterance.pitch = options.pitch ?? 1;
+      const voice = selectEnglishVoice(utterance.lang);
+      if (voice) utterance.voice = voice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopSpeaking() {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    }
+
+    function speakWord(word) {
+      speakText(word, { lang: "en-US", rate: 0.85, pitch: 1 });
+    }
+
+    function speakWordSlow(word) {
+      speakText(word, { lang: "en-US", rate: 0.58, pitch: 1 });
+    }
+
+    function speakSentence(sentence) {
+      speakText(sentence, { lang: "en-US", rate: 0.82, pitch: 1 });
+    }
+
+    function exampleText(item) {
+      return item?.example || item?.sentence || item?.phrase || "";
+    }
+
+    function renderWordSpeechControls(item, context = "review") {
+      if (!item) return "";
+      const example = exampleText(item);
+      const label = context === "zhToEn" || context === "mistakes" ? "🔊 正确读音" : "🔊 单词";
+      const slow = context === "review" ? `<button type="button" data-speech-action="wordSlow">🐢 慢速</button>` : "";
+      const exampleButton = example ? `<button type="button" data-speech-action="example">📖 例句</button>` : "";
+      return `<div class="speech-row"><button type="button" data-speech-action="word">${label}</button>${slow}${exampleButton}</div>`;
+    }
+
+    function renderCaseSpeechControls() {
+      return `<div class="speech-row"><button type="button" data-speech-action="caseSentence">🔊 读本句</button><button type="button" data-speech-action="caseSentenceSlow">🐢 慢速</button></div>`;
+    }
+
     function scopedItems() {
       return VOCAB.filter(item => item.unit === state.unit && item.category === state.category);
     }
@@ -852,7 +946,8 @@
       $("promptText").textContent = item.term;
       $("mainBtn").textContent = "下一个";
       const breakdown = state.mode === "review" && item.category === "Medical terminology" ? renderBreakdown(item) : "";
-      $("answerArea").innerHTML = `<div class="meaning">${escapeHtml(item.meaning)}</div>${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}${breakdown}`;
+      const speech = renderWordSpeechControls(item, state.mode === "review" ? "review" : "correct");
+      $("answerArea").innerHTML = `${speech}<div class="meaning">${escapeHtml(item.meaning)}</div>${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}${breakdown}`;
     }
 
     function renderBreakdown(item) {
@@ -884,7 +979,9 @@
       const answerText = englishAnswer ? item.term : item.meaning;
       const extra = englishAnswer && item.note ? "；" + escapeHtml(item.note) : "";
       if (state.submitted) {
+        const speech = renderWordSpeechControls(item, state.mode === "enToZh" ? "enToZh" : "zhToEn");
         $("answerArea").innerHTML = `
+          ${speech}
           <div class="reference user-answer"><strong>你的答案：</strong>${escapeHtml(state.lastInput || "")}</div>
           <div class="reference"><strong>参考答案：</strong>${escapeHtml(answerText)}${extra}</div>
         `;
@@ -1137,7 +1234,7 @@
       const input = (caseState.mode === "compare" || caseState.submitted) ? "" : `
         <textarea id="caseInput" enterkeyhint="done" autocomplete="off" placeholder="输入你的中文翻译。按回车提交，Shift+Enter 换行。"></textarea>
       `;
-      $("caseAnswerArea").innerHTML = `${input}${yourAnswer}${reference}${renderKeywords(item)}`;
+      $("caseAnswerArea").innerHTML = `${renderCaseSpeechControls()}${input}${yourAnswer}${reference}${renderKeywords(item)}`;
       const textarea = $("caseInput");
       if (textarea) {
         textarea.addEventListener("keydown", event => {
@@ -1199,6 +1296,7 @@
     }
 
     $("homeBtn").addEventListener("click", () => showScreen("homeScreen"));
+    $("stopSpeechBtn").addEventListener("click", stopSpeaking);
     $("backToUnits").addEventListener("click", () => showScreen("homeScreen"));
     $("mainBtn").addEventListener("click", mainAction);
     $("nextBtn").addEventListener("click", nextItem);
@@ -1210,6 +1308,28 @@
     $("caseHintBtn").addEventListener("click", () => {
       caseState.showHints = !caseState.showHints;
       renderCasePractice();
+    });
+    document.addEventListener("click", event => {
+      const button = event.target.closest("[data-speech-action]");
+      if (!button) return;
+      const action = button.dataset.speechAction;
+      if (action === "word") {
+        const item = currentItem();
+        if (item) speakWord(item.term);
+      } else if (action === "wordSlow") {
+        const item = currentItem();
+        if (item) speakWordSlow(item.term);
+      } else if (action === "example") {
+        const item = currentItem();
+        const example = exampleText(item);
+        if (example) speakSentence(example);
+      } else if (action === "caseSentence") {
+        const item = currentCase();
+        if (item) speakSentence(item.english);
+      } else if (action === "caseSentenceSlow") {
+        const item = currentCase();
+        if (item) speakText(item.english, { lang: "en-US", rate: 0.62, pitch: 1 });
+      }
     });
     $("caseGoodBtn").addEventListener("click", () => {
       const item = currentCase();
