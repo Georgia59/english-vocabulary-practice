@@ -80,6 +80,72 @@
       font-weight: 500;
       letter-spacing: 0;
     }
+    .brand-block {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .support-card {
+      display: grid;
+      gap: 10px;
+      width: min(100%, 220px);
+      padding: 12px;
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg,
+          color-mix(in srgb, var(--accent-soft) 72%, var(--panel)),
+          color-mix(in srgb, var(--panel) 86%, var(--accent-soft)));
+      box-shadow: 0 14px 34px rgba(114, 73, 42, .08);
+    }
+    .support-copy {
+      display: grid;
+      gap: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .support-copy strong {
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .support-toggle {
+      width: 100%;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff7f0;
+      text-align: center;
+    }
+    .support-toggle:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+    .support-panel {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      padding-top: 2px;
+    }
+    .support-panel[hidden] { display: none; }
+    .support-panel img {
+      display: block;
+      width: 100%;
+      max-width: 170px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+    .support-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-align: center;
+    }
     h2 {
       margin: 4px 0 0;
       font-family: var(--font-display);
@@ -387,6 +453,9 @@
         font-size: 25px;
         line-height: 1.14;
       }
+      .support-card {
+        width: 100%;
+      }
       .top-actions {
         width: 100%;
         flex-direction: column;
@@ -433,6 +502,17 @@
       }
       h1 {
         font-size: 22px;
+      }
+      .brand-block {
+        width: 100%;
+        gap: 10px;
+      }
+      .support-card {
+        width: 100%;
+        padding: 10px;
+      }
+      .support-panel img {
+        max-width: 150px;
       }
       .top-actions {
         justify-content: flex-start;
@@ -483,7 +563,20 @@
 </head>
 <body>
   <header>
-    <h1>English Vocabulary Practice</h1>
+    <div class="brand-block">
+      <h1>English Vocabulary Practice</h1>
+      <div class="support-card" aria-label="赞赏支持">
+        <div class="support-copy">
+          <strong>赞赏支持</strong>
+          <span>喜欢这个复习工具，可以请我喝杯咖啡。</span>
+        </div>
+        <button id="supportToggleBtn" class="support-toggle" aria-expanded="false" aria-controls="supportPanel">支持一下</button>
+        <div id="supportPanel" class="support-panel" hidden>
+          <img src="money.jpg" alt="赞赏码">
+          <div class="support-note">扫码赞赏</div>
+        </div>
+      </div>
+    </div>
     <div class="top-actions">
       <button id="homeBtn">首页</button>
       <button id="stopSpeechBtn">停止朗读</button>
@@ -1296,6 +1389,12 @@
     }
 
     $("homeBtn").addEventListener("click", () => showScreen("homeScreen"));
+    $("supportToggleBtn").addEventListener("click", () => {
+      const panel = $("supportPanel");
+      const shouldShow = panel.hidden;
+      panel.hidden = !shouldShow;
+      $("supportToggleBtn").setAttribute("aria-expanded", String(shouldShow));
+    });
     $("stopSpeechBtn").addEventListener("click", stopSpeaking);
     $("backToUnits").addEventListener("click", () => showScreen("homeScreen"));
     $("mainBtn").addEventListener("click", mainAction);
