@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
   <title>English Vocabulary Practice</title>
   <style>
     :root {
@@ -52,6 +52,7 @@
       overflow-x: hidden;
       overflow-x: clip;
     }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -628,6 +629,7 @@
         align-content: start;
         padding: 18px;
         gap: 12px;
+        scroll-margin-top: 8px;
       }
       .card, .panel, .tile, input[type="text"], textarea {
         width: 100%;
@@ -656,6 +658,29 @@
       }
       .stat b {
         font-size: 22px;
+      }
+      /* Mobile keyboard UX: inline result shown while input stays alive */
+      .mobile-inline-result {
+        display: grid;
+        gap: 6px;
+        padding: 10px 0 2px;
+      }
+      .mobile-inline-result .reference {
+        font-size: 14px;
+        padding: 8px 10px;
+      }
+      /* When keyboard is open, hide non-essential panels */
+      body.keyboard-open .stats,
+      body.keyboard-open .practice-actions .secondary-actions,
+      body.keyboard-open #mistakePanel,
+      body.keyboard-open #caseMistakePanel {
+        display: none;
+      }
+      body.keyboard-open header {
+        display: none;
+      }
+      body.keyboard-open main {
+        padding-top: 6px;
       }
     }
   </style>
@@ -1167,6 +1192,21 @@
       `;
     }
 
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 768);
+
+    /* ── Keyboard-open detector (mobile only) ── */
+    if (isMobile && window.visualViewport) {
+      const vv = window.visualViewport;
+      const KEYBOARD_THRESHOLD = 150;
+      let fullHeight = vv.height;
+      vv.addEventListener('resize', () => {
+        const diff = fullHeight - vv.height;
+        document.body.classList.toggle('keyboard-open', diff > KEYBOARD_THRESHOLD);
+      });
+      // Update fullHeight when orientation changes or keyboard fully closes
+      window.addEventListener('resize', () => { fullHeight = Math.max(fullHeight, window.visualViewport.height); });
+    }
+
     function renderDictation(item) {
       const englishAnswer = state.mode !== "enToZh";
       $("mainBtn").hidden = false;
@@ -1177,7 +1217,34 @@
       $("mainBtn").textContent = state.submitted ? "下一个" : "提交";
       const answerText = englishAnswer ? item.term : item.meaning;
       const extra = englishAnswer && item.note ? "；" + escapeHtml(item.note) : "";
+
       if (state.submitted) {
+        /* ── Mobile path: keep input alive so keyboard stays open ── */
+        if (isMobile) {
+          const existingInput = $("answerInput");
+          if (existingInput) {
+            // Keep the input but make it visually indicate submitted state
+            existingInput.readOnly = true;
+            existingInput.style.borderColor = 'var(--line-strong)';
+            existingInput.style.opacity = '0.7';
+          }
+          // Show results inline below the input (don't destroy it)
+          let resultDiv = document.getElementById("mobileInlineResult");
+          if (!resultDiv) {
+            resultDiv = document.createElement("div");
+            resultDiv.id = "mobileInlineResult";
+            resultDiv.className = "mobile-inline-result";
+            $("answerArea").appendChild(resultDiv);
+          }
+          const speech = renderWordSpeechControls(item, state.mode === "enToZh" ? "enToZh" : "zhToEn");
+          resultDiv.innerHTML = `
+            ${speech}
+            <div class="reference user-answer"><strong>你的答案：</strong>${escapeHtml(state.lastInput || "")}</div>
+            <div class="reference"><strong>参考答案：</strong>${escapeHtml(answerText)}${extra}</div>
+          `;
+          return;
+        }
+        /* ── Desktop path: original behavior ── */
         const speech = renderWordSpeechControls(item, state.mode === "enToZh" ? "enToZh" : "zhToEn");
         $("answerArea").innerHTML = `
           ${speech}
@@ -1186,6 +1253,23 @@
         `;
         return;
       }
+
+      /* ── Not submitted: show input field ── */
+      /* On mobile, try to reuse existing input to preserve keyboard focus */
+      const existingInput = $("answerInput");
+      if (isMobile && existingInput && document.activeElement === existingInput) {
+        // Reuse the input — just clear it and update placeholder
+        existingInput.value = "";
+        existingInput.readOnly = false;
+        existingInput.style.borderColor = '';
+        existingInput.style.opacity = '';
+        existingInput.placeholder = englishAnswer ? "输入英文" : "输入中文释义";
+        // Remove any inline result
+        const oldResult = document.getElementById("mobileInlineResult");
+        if (oldResult) oldResult.remove();
+        return;
+      }
+
       $("answerArea").innerHTML = `
         <div class="answer-row">
           <input id="answerInput" type="text" enterkeyhint="done" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="${englishAnswer ? "输入英文" : "输入中文释义"}">
@@ -1196,6 +1280,13 @@
         input.focus({ preventScroll: true });
       } catch {
         input.focus();
+      }
+      if (isMobile) {
+        // Scroll to keep the prompt visible
+        setTimeout(() => {
+          const card = input.closest('.study-card');
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
       }
       input.addEventListener("keydown", event => {
         if (event.key === "Enter") {
@@ -1248,14 +1339,24 @@
       state.lastInput = value;
       record(item, ok);
       if (ok) setWrong(item, false);
-      $("feedback").textContent = ok ? "" : "错误";
-      $("feedback").className = `feedback ${ok ? "" : "bad"}`;
+      $("feedback").textContent = ok ? "✓ 正确" : "✗ 错误";
+      $("feedback").className = `feedback ${ok ? "good" : "bad"}`;
       state.submitted = true;
       renderDictation(item);
-      $("feedback").textContent = ok ? "" : "错误";
-      $("feedback").className = `feedback ${ok ? "" : "bad"}`;
+      // Re-apply feedback after render (renderDictation may reset it)
+      $("feedback").textContent = ok ? "✓ 正确" : "✗ 错误";
+      $("feedback").className = `feedback ${ok ? "good" : "bad"}`;
       updateStats();
       renderMistakes();
+
+      /* On mobile + correct answer: auto-advance after a short delay */
+      if (isMobile && ok) {
+        setTimeout(() => {
+          if (state.submitted) {
+            nextItem();
+          }
+        }, 600);
+      }
     }
 
     function nextItem() {
@@ -1285,7 +1386,11 @@
       const item = currentItem();
       if (!item) return;
       if (isWritingMode(state.mode)) {
-        state.submitted ? nextItem() : submitAnswer();
+        if (state.submitted) {
+          nextItem();
+        } else {
+          submitAnswer();
+        }
         return;
       }
       nextItem();
@@ -1424,6 +1529,30 @@
       $("casePromptLabel").textContent = caseState.mode === "compare" ? "对照模式" : "英译中";
       $("caseEnglish").textContent = item.english;
       $("caseMainBtn").textContent = caseState.submitted ? "正确" : (caseState.mode === "compare" ? "下一个" : "提交");
+
+      if (isMobile && caseState.submitted && caseState.mode !== "compare") {
+        /* Mobile: keep textarea alive, show results inline */
+        const existingTA = $("caseInput");
+        if (existingTA) {
+          existingTA.readOnly = true;
+          existingTA.style.opacity = '0.7';
+          existingTA.style.minHeight = '60px';
+        }
+        let resultDiv = document.getElementById("mobileCaseResult");
+        if (!resultDiv) {
+          resultDiv = document.createElement("div");
+          resultDiv.id = "mobileCaseResult";
+          resultDiv.className = "mobile-inline-result";
+          $("caseAnswerArea").appendChild(resultDiv);
+        }
+        resultDiv.innerHTML = `
+          <div class="reference user-answer"><strong>你的译文：</strong>${escapeHtml(caseState.lastInput || "")}</div>
+          <div class="reference"><strong>参考译文：</strong>${escapeHtml(item.translation)}</div>
+          ${renderKeywords(item)}
+        `;
+        return;
+      }
+
       const yourAnswer = caseState.submitted
         ? `<div class="reference user-answer"><strong>你的译文：</strong>${escapeHtml(caseState.lastInput || "")}</div>`
         : "";
@@ -1443,6 +1572,12 @@
             handleEnter();
           }
         });
+        if (isMobile) {
+          setTimeout(() => {
+            const card = textarea.closest('.study-card');
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 300);
+        }
       }
     }
 
@@ -1455,6 +1590,12 @@
       caseState.showHints = true;
       renderCasePractice();
       $("caseFeedback").textContent = "对照参考译文后自评分";
+      // On mobile, update button states without full re-render
+      if (isMobile) {
+        $("caseGoodBtn").disabled = false;
+        $("caseWeakBtn").disabled = false;
+        $("caseMainBtn").hidden = true;
+      }
     }
 
     function nextCase() {
