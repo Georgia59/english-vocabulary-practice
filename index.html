@@ -798,6 +798,7 @@
           <button data-mode="review" class="active">记忆</button>
           <button data-mode="enToZh">英译中</button>
           <button data-mode="zhToEn">中译英</button>
+          <button data-mode="enToEn">英译英</button>
           <button data-mode="correct">正确</button>
           <button data-mode="mistakes">错词</button>
         </div>
@@ -1061,7 +1062,7 @@
     function renderWordSpeechControls(item, context = "review") {
       if (!item) return "";
       const example = exampleText(item);
-      const label = context === "zhToEn" || context === "mistakes" ? "🔊 正确读音" : "🔊 单词";
+      const label = context === "zhToEn" || context === "mistakes" || context === "enToEn" ? "🔊 正确读音" : "🔊 单词";
       const slow = context === "review" ? `<button type="button" data-speech-action="wordSlow">🐢 慢速</button>` : "";
       const exampleButton = example ? `<button type="button" data-speech-action="example">📖 例句</button>` : "";
       return `<div class="speech-row"><button type="button" data-speech-action="word">${label}</button>${slow}${exampleButton}</div>`;
@@ -1075,8 +1076,12 @@
       return VOCAB.filter(item => item.unit === state.unit && item.category === state.category);
     }
 
+    function hasEnglishExplanation(item) {
+      return Boolean(item.note && item.note.trim());
+    }
+
     function activeItems() {
-      const base = scopedItems();
+      const base = state.mode === "enToEn" ? scopedItems().filter(hasEnglishExplanation) : scopedItems();
       if (state.mode === "mistakes") return base.filter(item => progress[keyOf(item)]?.wrong);
       if (state.mode === "correct") return base.filter(item => {
         const row = progress[keyOf(item)];
@@ -1142,7 +1147,7 @@
     }
 
     function isWritingMode(mode) {
-      return mode === "enToZh" || mode === "zhToEn" || mode === "mistakes";
+      return mode === "enToZh" || mode === "zhToEn" || mode === "enToEn" || mode === "mistakes";
     }
 
     function normalizeAnswer(value) {
@@ -1208,7 +1213,7 @@
       $("nextBtn").hidden = isWritingMode(state.mode) && state.submitted;
       if (!item) {
         $("promptLabel").textContent = "没有可练习的项目";
-        $("promptText").textContent = state.mode === "mistakes" ? "当前没有错词" : (state.mode === "correct" ? "当前没有正确词" : "当前没有待练习词");
+        $("promptText").textContent = state.mode === "mistakes" ? "当前没有错词" : (state.mode === "correct" ? "当前没有正确词" : (state.mode === "enToEn" ? "当前没有带英文解释的词" : "当前没有待练习词"));
         $("answerArea").innerHTML = "";
         $("mainBtn").disabled = true;
         $("nextBtn").hidden = false;
@@ -1265,15 +1270,17 @@
     }
 
     function renderDictation(item) {
+      const englishDefinitionMode = state.mode === "enToEn";
       const englishAnswer = state.mode !== "enToZh";
       $("mainBtn").hidden = false;
       $("nextBtn").hidden = state.submitted;
       $("masterBtn").disabled = !item || !state.submitted;
-      $("promptLabel").textContent = state.mode === "enToZh" ? "英译中" : (state.mode === "mistakes" ? "错词：中译英" : "中译英");
-      $("promptText").textContent = englishAnswer ? item.meaning : item.term;
+      $("promptLabel").textContent = state.mode === "enToZh" ? "英译中" : (englishDefinitionMode ? "英译英" : (state.mode === "mistakes" ? "错词：中译英" : "中译英"));
+      $("promptText").textContent = englishDefinitionMode ? item.note : (englishAnswer ? item.meaning : item.term);
       $("mainBtn").textContent = state.submitted ? "下一个" : "提交";
       const answerText = englishAnswer ? item.term : item.meaning;
-      const extra = englishAnswer && item.note ? "；" + escapeHtml(item.note) : "";
+      const extra = englishDefinitionMode ? "；" + escapeHtml(item.meaning) : (englishAnswer && item.note ? "；" + escapeHtml(item.note) : "");
+      const speechContext = state.mode === "enToZh" ? "enToZh" : (englishDefinitionMode ? "enToEn" : "zhToEn");
 
       if (state.submitted) {
         /* ── Mobile path: keep input alive so keyboard stays open ── */
@@ -1293,7 +1300,7 @@
             resultDiv.className = "mobile-inline-result";
             $("answerArea").appendChild(resultDiv);
           }
-          const speech = renderWordSpeechControls(item, state.mode === "enToZh" ? "enToZh" : "zhToEn");
+          const speech = renderWordSpeechControls(item, speechContext);
           resultDiv.innerHTML = `
             ${speech}
             <div class="reference user-answer"><strong>你的答案：</strong>${escapeHtml(state.lastInput || "")}</div>
@@ -1302,7 +1309,7 @@
           return;
         }
         /* ── Desktop path: original behavior ── */
-        const speech = renderWordSpeechControls(item, state.mode === "enToZh" ? "enToZh" : "zhToEn");
+        const speech = renderWordSpeechControls(item, speechContext);
         $("answerArea").innerHTML = `
           ${speech}
           <div class="reference user-answer"><strong>你的答案：</strong>${escapeHtml(state.lastInput || "")}</div>
@@ -1359,7 +1366,7 @@
     }
 
     function updateStats() {
-      const items = scopedItems();
+      const items = state.mode === "enToEn" ? scopedItems().filter(hasEnglishExplanation) : scopedItems();
       let seen = 0, correctCount = 0, mastered = 0, wrong = 0;
       for (const item of items) {
         const row = progress[keyOf(item)];
