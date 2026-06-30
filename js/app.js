@@ -477,9 +477,28 @@
       $("promptLabel").textContent = state.mode === "correct" ? "正确" : "记忆";
       $("promptText").textContent = item.term;
       $("mainBtn").textContent = "下一个";
-      const breakdown = state.mode === "review" && item.category === "Medical terminology" ? renderBreakdown(item) : "";
+      const breakdown = state.mode === "review"
+        ? (item.category === "Medical terminology" ? renderBreakdown(item) : renderWordFormation(item))
+        : "";
       const speech = renderWordSpeechControls(item, state.mode === "review" ? "review" : "correct");
       $("answerArea").innerHTML = `${speech}<div class="meaning">${escapeHtml(item.meaning)}</div>${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}${breakdown}`;
+    }
+
+    function wordFormationForItem(item) {
+      if (typeof WORD_FORMATION === "undefined" || !item) return null;
+      const exact = WORD_FORMATION[`${item.unit}::${item.term}`];
+      if (exact) return exact;
+      return Object.values(WORD_FORMATION).find(row => {
+        if (row.unit !== item.unit) return false;
+        return expandEnglishSlashTerm(row.term).some(term => normalizeAnswer(term) === normalizeAnswer(item.term));
+      }) || null;
+    }
+
+    function renderWordFormation(item) {
+      if (item.category !== "Words & Phrases") return "";
+      const formation = wordFormationForItem(item);
+      if (!formation?.parts?.length) return "";
+      return renderBreakdown({ breakdown: formation });
     }
 
     function renderBreakdown(item) {
@@ -1053,8 +1072,36 @@
       return terms.slice(0, 8);
     }
 
+    function themeTranslationKeywordGroups(item) {
+      if (!item) return [];
+      const data = typeof THEME_READING_KEYWORDS === "undefined" ? null : THEME_READING_KEYWORDS[item.id];
+      const groups = data?.keywordGroups || item.keywordGroups || [];
+      return groups.filter(group => group.terms?.length);
+    }
+
     function renderThemeTranslationHints(item) {
       if (!themeTranslationState.submitted && themeTranslationState.mode !== "compare") return "";
+      const groups = themeTranslationKeywordGroups(item);
+      if (groups.length) {
+        const groupHtml = groups.map(group => {
+          const english = group.english ? `<div class="keyword-line"><strong>英文：</strong>${escapeHtml(group.english)}</div>` : "";
+          const translation = group.translation ? `<div class="keyword-line"><strong>中文：</strong>${escapeHtml(group.translation)}</div>` : "";
+          const terms = (group.terms || []).map(term => {
+            const pos = term.pos ? ` <span class="keyword-pos">${escapeHtml(term.pos)}</span>` : "";
+            const meaning = term.meaning ? ` ${escapeHtml(term.meaning)}` : "";
+            return `<li><span class="keyword-term">${escapeHtml(term.term)}</span>${pos}${meaning}</li>`;
+          }).join("");
+          return `
+            <div class="keyword-group">
+              <div class="keyword-group-title">${escapeHtml(group.title || "关键词")}</div>
+              ${english}
+              ${translation}
+              <ol class="keyword-list">${terms}</ol>
+            </div>
+          `;
+        }).join("");
+        return `<div class="keyword-panel"><div class="keyword-title">关键词</div><div class="keyword-groups">${groupHtml}</div></div>`;
+      }
       const terms = themeTranslationHints(item);
       const termHtml = terms.length ? terms.map(term => `<span class="keyword">${escapeHtml(term)}</span>`).join("") : `<span class="muted">暂无自动提取要点</span>`;
       return `<div class="keyword-panel"><div class="keyword-title">翻译要点</div><div class="keywords">${termHtml}</div></div>`;
@@ -1258,23 +1305,23 @@
 
     function pickClozeCandidates(item) {
       const body = caseBodyForCloze(item);
-      const lowerBody = body.toLowerCase();
       const termCandidates = item.blankCandidates
-        .map(candidate => ({ ...candidate, index: lowerBody.indexOf(candidate.answer.toLowerCase()) }))
-        .filter(candidate => candidate.index >= 0)
-        .sort((a, b) => a.index - b.index);
+        .map(candidate => ({ ...candidate, span: resolveClozeSpan(body, candidate) }))
+        .filter(candidate => candidate.span)
+        .sort((a, b) => a.span.start - b.span.start);
       const languageCandidates = clozeLanguageCandidates(item);
-      const termCount = Math.min(6, termCandidates.length);
-      const languageCount = Math.min(4, languageCandidates.length);
+      const termCount = Math.min(9, termCandidates.length);
+      const languageCount = Math.min(7, languageCandidates.length);
       const picked = [
         ...shuffleArray(termCandidates).slice(0, termCount),
         ...shuffleArray(languageCandidates).slice(0, languageCount)
       ];
       const pool = [...termCandidates, ...languageCandidates].filter(candidate => !picked.includes(candidate));
-      while (picked.length < CLOZE_BLANKS_PER_ATTEMPT && pool.length) {
+      const targetCount = CLOZE_BLANKS_PER_ATTEMPT + 8;
+      while (picked.length < targetCount && pool.length) {
         picked.push(pool.shift());
       }
-      return shuffleArray(picked).slice(0, CLOZE_BLANKS_PER_ATTEMPT);
+      return shuffleArray(picked).slice(0, targetCount);
     }
 
     function clozeLanguageCandidates(item) {
@@ -1324,12 +1371,87 @@
       return shuffleArray(pool).slice(0, 3);
     }
 
+    function clozeOptionsForCandidate(item, candidate) {
+      if (candidate.options) return candidate.options;
+      const preferred = Array.isArray(candidate.distractors) ? candidate.distractors : [];
+      const fillers = clozeOptionPool(item, candidate.answer);
+      const distractors = [...new Set([...preferred, ...fillers])]
+        .filter(option => option && option !== candidate.answer)
+        .slice(0, 3);
+      return shuffleArray([candidate.answer, ...distractors]);
+    }
+
+    function isClozeWordChar(char) {
+      return /[A-Za-z0-9]/.test(char || "");
+    }
+
+    function findSafePhrase(text, phrase, from = 0) {
+      const lowerText = text.toLowerCase();
+      const lowerPhrase = String(phrase || "").toLowerCase();
+      if (!lowerPhrase) return -1;
+      let index = lowerText.indexOf(lowerPhrase, from);
+      while (index >= 0) {
+        const before = text[index - 1] || "";
+        const after = text[index + phrase.length] || "";
+        if (!isClozeWordChar(before) && !isClozeWordChar(after)) return index;
+        index = lowerText.indexOf(lowerPhrase, index + 1);
+      }
+      return -1;
+    }
+
+    function resolveClozeSpan(body, candidate) {
+      const target = candidate.target || candidate.answer;
+      if (!target) return null;
+      if (candidate.anchor) {
+        const anchorStart = body.toLowerCase().indexOf(candidate.anchor.toLowerCase());
+        if (anchorStart < 0) return null;
+        const anchorText = body.slice(anchorStart, anchorStart + candidate.anchor.length);
+        const targetOffset = anchorText.toLowerCase().indexOf(String(target).toLowerCase());
+        if (targetOffset < 0) return null;
+        const start = anchorStart + targetOffset;
+        return { start, end: start + String(target).length };
+      }
+      const start = findSafePhrase(body, candidate.answer);
+      if (start < 0) return null;
+      return { start, end: start + String(candidate.answer).length };
+    }
+
+    function spansOverlap(a, b) {
+      return a.start < b.end && b.start < a.end;
+    }
+
+    function sentenceBoundsForSpan(body, span) {
+      const before = body.slice(0, span.start);
+      const sentenceStart = Math.max(before.lastIndexOf("."), before.lastIndexOf("?"), before.lastIndexOf("!")) + 1;
+      const after = body.slice(span.end);
+      const endOffsets = [after.indexOf("."), after.indexOf("?"), after.indexOf("!")]
+        .filter(index => index >= 0);
+      const sentenceEnd = endOffsets.length ? span.end + Math.min(...endOffsets) + 1 : body.length;
+      const raw = body.slice(sentenceStart, sentenceEnd);
+      const leading = raw.match(/^\s*/)?.[0].length || 0;
+      const trailing = raw.match(/\s*$/)?.[0].length || 0;
+      return {
+        start: sentenceStart + leading,
+        end: sentenceEnd - trailing,
+        text: raw.trim()
+      };
+    }
+
     function buildCloze(item) {
       const body = caseBodyForCloze(item);
       const candidates = pickClozeCandidates(item);
-      const blanks = candidates.map((candidate, index) => {
-        const number = index + 1;
-        const options = candidate.options || shuffleArray([candidate.answer, ...clozeOptionPool(item, candidate.answer)]);
+      const blanks = [];
+      candidates
+        .map(candidate => ({ ...candidate, span: candidate.span || resolveClozeSpan(body, candidate) }))
+        .filter(candidate => candidate.span)
+        .sort((a, b) => a.span.start - b.span.start)
+        .forEach(candidate => {
+          if (blanks.length >= CLOZE_BLANKS_PER_ATTEMPT) return;
+          if (blanks.some(blank => spansOverlap(blank.span, candidate.span))) return;
+          blanks.push(candidate);
+        });
+      const numberedBlanks = blanks.map((candidate, index) => {
+        const options = clozeOptionsForCandidate(item, candidate);
         return {
           ...candidate,
           number: index + 1,
@@ -1337,10 +1459,10 @@
           question: clozeQuestionText(body, candidate)
         };
       });
-      const blankedPassage = renderBlankedClozePassage(body, blanks);
+      const blankedPassage = renderBlankedClozePassage(body, numberedBlanks);
       clozeState = {
         caseItem: item,
-        blanks,
+        blanks: numberedBlanks,
         submitted: false,
         showOriginal: false,
         answers: {},
@@ -1351,15 +1473,13 @@
 
     function renderBlankedClozePassage(body, blanks) {
       const replacements = blanks
-        .map(blank => ({ ...blank, index: body.toLowerCase().indexOf(blank.answer.toLowerCase()) }))
-        .filter(blank => blank.index >= 0)
-        .sort((a, b) => a.index - b.index);
+        .filter(blank => blank.span)
+        .sort((a, b) => a.span.start - b.span.start);
       let cursor = 0;
       const parts = [];
       replacements.forEach(blank => {
-        const start = body.toLowerCase().indexOf(blank.answer.toLowerCase(), cursor);
+        const { start, end } = blank.span;
         if (start < cursor) return;
-        const end = start + blank.answer.length;
         parts.push(escapeHtml(body.slice(cursor, start)));
         parts.push(`<span class="cloze-text-blank">${blank.number}</span>`);
         cursor = end;
@@ -1369,11 +1489,12 @@
     }
 
     function clozeQuestionText(body, candidate) {
-      const sentences = body.match(/[^.!?]+[.!?]/g) || [body];
-      const target = candidate.anchor || candidate.answer;
-      const sentence = sentences.find(part => part.toLowerCase().includes(target.toLowerCase())) || body;
-      const escaped = escapeRegExp(candidate.answer);
-      return sentence.replace(new RegExp(escaped, "i"), "_____").trim();
+      const span = candidate.span || resolveClozeSpan(body, candidate);
+      if (!span) return "";
+      const sentence = sentenceBoundsForSpan(body, span);
+      const relativeStart = span.start - sentence.start;
+      const relativeEnd = span.end - sentence.start;
+      return `${sentence.text.slice(0, relativeStart).trimStart()}_____${sentence.text.slice(relativeEnd).trimEnd()}`.trim();
     }
 
     function escapeRegExp(value) {
