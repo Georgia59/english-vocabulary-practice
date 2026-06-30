@@ -346,12 +346,6 @@
           startCloze(btn.dataset.clozeCase);
         });
       });
-      $("notePdfGrid").innerHTML = NOTE_PDFS.map(note => `
-        <a class="tile pdf-tile" href="${escapeHtml(note.file)}" target="_blank" rel="noopener">
-          <strong>${escapeHtml(note.title)}</strong>
-          <span>${escapeHtml(note.group)} · PDF</span>
-        </a>
-      `).join("");
     }
 
     function renderCategories() {
@@ -1196,7 +1190,29 @@
       $("knowledgeTitle").textContent = knowledgeState.track === "writing" ? "Writing 复习卡片" : "课文复习卡片";
       $("knowledgeTotalStat").textContent = cards.length;
       $("knowledgeSourceStat").textContent = knowledgeState.track === "writing" ? "Writing PPT" : "Theme + Case PPT";
+      $("knowledgePdfActions").innerHTML = renderKnowledgePdfActions();
       $("knowledgeList").innerHTML = cards.length ? cards.map(renderKnowledgeCard).join("") : `<div class="panel muted">当前单元暂无知识卡片</div>`;
+    }
+
+    function knowledgePdfNotes() {
+      const unitNumber = knowledgeState.unit.replace("Unit", "");
+      if (knowledgeState.track === "writing") {
+        return NOTE_PDFS.filter(note => note.group === "Writing" && note.title.includes(`Unit ${unitNumber}`));
+      }
+      return NOTE_PDFS.filter(note =>
+        (note.group === "Theme Reading" || note.group === "Case Study")
+        && note.title.includes(`Unit ${unitNumber}`)
+      );
+    }
+
+    function renderKnowledgePdfActions() {
+      const notes = knowledgePdfNotes();
+      if (!notes.length) return `<span class="muted">暂无 PDF</span>`;
+      return notes.map(note => `
+        <a class="pdf-action" href="${escapeHtml(note.file)}" target="_blank" rel="noopener">
+          ${escapeHtml(note.group === "Theme Reading" ? "Theme" : (note.group === "Case Study" ? "Case" : "Writing"))}
+        </a>
+      `).join("");
     }
 
     function renderKnowledgeCard(card) {
@@ -1321,14 +1337,35 @@
           question: clozeQuestionText(body, candidate)
         };
       });
+      const blankedPassage = renderBlankedClozePassage(body, blanks);
       clozeState = {
         caseItem: item,
         blanks,
         submitted: false,
-        showOriginal: true,
+        showOriginal: false,
         answers: {},
-        original: body
+        original: body,
+        blankedPassage
       };
+    }
+
+    function renderBlankedClozePassage(body, blanks) {
+      const replacements = blanks
+        .map(blank => ({ ...blank, index: body.toLowerCase().indexOf(blank.answer.toLowerCase()) }))
+        .filter(blank => blank.index >= 0)
+        .sort((a, b) => a.index - b.index);
+      let cursor = 0;
+      const parts = [];
+      replacements.forEach(blank => {
+        const start = body.toLowerCase().indexOf(blank.answer.toLowerCase(), cursor);
+        if (start < cursor) return;
+        const end = start + blank.answer.length;
+        parts.push(escapeHtml(body.slice(cursor, start)));
+        parts.push(`<span class="cloze-text-blank">${blank.number}</span>`);
+        cursor = end;
+      });
+      parts.push(escapeHtml(body.slice(cursor)));
+      return parts.join("");
     }
 
     function clozeQuestionText(body, candidate) {
@@ -1366,11 +1403,13 @@
       $("clozeBlankStat").textContent = clozeState.blanks.length;
       $("clozeScoreStat").textContent = clozeState.submitted ? clozeScoreText() : "-";
       $("clozeSourceStat").textContent = `题库 ${item.blankCandidates.length}`;
-      $("clozeFeedback").textContent = clozeState.submitted ? "已提交，可在下方核对答案。" : "文章正常阅读，题目在文章下方单独作答。";
+      $("clozeFeedback").textContent = clozeState.submitted ? "已提交，可在下方核对答案。" : "上方文章已挖空，题目在文章下方单独作答。";
       $("clozeFeedback").className = `feedback ${clozeState.submitted ? "good" : ""}`;
       $("submitClozeBtn").disabled = clozeState.submitted || !clozeState.blanks.length;
       $("showClozeOriginalBtn").textContent = clozeState.showOriginal ? "隐藏原文" : "显示原文";
-      $("clozePassage").innerHTML = clozeState.showOriginal ? `<div class="cloze-original">${escapeHtml(clozeState.original)}</div>` : "";
+      $("clozePassage").innerHTML = clozeState.showOriginal
+        ? `<div class="cloze-original">${escapeHtml(clozeState.original)}</div>`
+        : `<div class="cloze-original">${clozeState.blankedPassage}</div>`;
       $("clozeQuestionList").innerHTML = renderClozeQuestions();
       $("clozeReviewPanel").hidden = !clozeState.submitted;
       $("clozeReviewList").innerHTML = clozeState.submitted ? renderClozeReview() : "";

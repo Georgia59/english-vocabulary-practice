@@ -471,6 +471,18 @@
     .cloze-original {
       line-height: 1.85;
     }
+    .cloze-text-blank {
+      display: inline-grid;
+      place-items: center;
+      min-width: 88px;
+      margin: 0 4px;
+      border-bottom: 2px solid var(--text);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.4;
+      transform: translateY(-2px);
+    }
     .cloze-question-list {
       display: grid;
       gap: 12px;
@@ -667,6 +679,30 @@
       background: var(--panel-2);
       font-size: 12px;
       line-height: 1.2;
+    }
+    .pdf-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .pdf-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--panel);
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .pdf-action:hover {
+      background: var(--panel-2);
+      border-color: var(--line-strong);
     }
     @media (min-width: 900px) {
       header {
