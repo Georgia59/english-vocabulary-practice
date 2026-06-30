@@ -39,6 +39,9 @@
     const textKnowledgeUnits = [...new Set(KNOWLEDGE_CARDS.filter(item => item.track === "textbook").map(item => item.unit))].sort();
     const writingKnowledgeUnits = [...new Set(KNOWLEDGE_CARDS.filter(item => item.track === "writing").map(item => item.unit))].sort();
     const CLOZE_BLANKS_PER_ATTEMPT = 10;
+    const CLOZE_WORD_BANK_SIZE = 15;
+    const CLOZE_DISTRACTOR_COUNT = CLOZE_WORD_BANK_SIZE - CLOZE_BLANKS_PER_ATTEMPT;
+    const CLOZE_WORD_BANK_LABELS = "ABCDEFGHIJKLMNO".split("");
     const categories = ["Medical terminology", "Words & Phrases"];
     let state = {
       unit: units[0],
@@ -71,8 +74,14 @@
     let clozeState = {
       caseItem: null,
       blanks: [],
+      wordBank: [],
+      candidatePool: [],
       submitted: false,
       showOriginal: false
+    };
+    let lastClozeInteraction = {
+      activeId: "",
+      scrollY: 0
     };
     let knowledgeState = {
       track: "textbook",
@@ -337,7 +346,7 @@
         });
       });
       $("clozeGrid").innerHTML = CLOZE_CASES.map(item => {
-        const coreCount = item.blankCandidates.length;
+        const coreCount = clozeCandidatePoolForCase(item).length;
         const practiceCount = Math.min(CLOZE_BLANKS_PER_ATTEMPT, coreCount);
         return `<button class="tile" data-cloze-case="${item.caseId}"><strong>${item.unit} / ${item.caseId}</strong><span>${escapeHtml(item.title)} · 题库 ${coreCount} 个，每次 ${practiceCount} 空</span></button>`;
       }).join("");
@@ -1553,6 +1562,496 @@
       }).join("");
     }
 
+    const CLOZE_EXTERNAL_DISTRACTORS = {
+      medical_term: [
+        "myocardial infarction", "pneumonia", "hypertension", "arrhythmia", "thrombus",
+        "pulmonary embolism", "cardiac tamponade", "septic shock", "renal failure",
+        "hypoglycemia", "atrial fibrillation", "pleural effusion", "pulmonary edema",
+        "deep vein thrombosis", "acute pancreatitis", "hyperthyroidism", "anemia",
+        "cellulitis", "meningitis", "osteoporosis"
+      ],
+      collocation: [
+        "be associated with", "be admitted for", "be treated with", "be complicated by",
+        "be diagnosed with", "be referred for", "be discharged on", "be evaluated for",
+        "be negative for", "be resistant to", "be consistent with", "be responsive to",
+        "in preparation for", "in response to", "as a result of", "on examination"
+      ],
+      preposition: [
+        "in", "on", "at", "for", "with", "of", "to", "from", "by", "through", "within", "into"
+      ],
+      verb_phrase: [
+        "presented", "complained of", "developed", "received", "underwent",
+        "demonstrated", "confirmed", "required", "resolved", "returned",
+        "continued", "improved", "recovered", "revealed", "indicated"
+      ],
+      logic_word: [
+        "however", "therefore", "although", "while", "thus", "because of",
+        "as a result", "whereas", "after", "before"
+      ]
+    };
+
+    const CLOZE_LANGUAGE_PATTERNS = [
+      { anchor: "comes to the clinic with", answer: "with", type: "preposition", phrase: "comes to the clinic with", explanation: "Fixed pattern: come to the clinic with symptoms." },
+      { anchor: "presented with complaints of", answer: "presented with", type: "collocation", phrase: "presented with complaints of", explanation: "presented with introduces the chief complaint." },
+      { anchor: "There was no history of", answer: "no history of", target: "no history of", type: "collocation", phrase: "There was no history of", explanation: "no history of rules out prior illness or exposure." },
+      { anchor: "has a history of", answer: "history of", target: "history of", type: "collocation", phrase: "has a history of", explanation: "Use history of for past medical problems." },
+      { anchor: "history of", answer: "of", type: "preposition", phrase: "history of", explanation: "history of is the standard medical collocation." },
+      { anchor: "born at term", answer: "at term", type: "prepositional_phrase", phrase: "born at term", explanation: "at term describes normal gestational timing." },
+      { anchor: "Physical examination revealed", answer: "revealed", type: "verb_phrase", phrase: "Physical examination revealed", explanation: "revealed introduces examination findings." },
+      { anchor: "Transthoracic echocardiography revealed", answer: "revealed", type: "verb_phrase", phrase: "echocardiography revealed", explanation: "revealed reports a test finding." },
+      { anchor: "However", answer: "However", type: "logic_word", phrase: "However", explanation: "However marks contrast with the previous finding." },
+      { anchor: "appropriate for his age", answer: "appropriate for", type: "collocation", phrase: "appropriate for his age", explanation: "appropriate for means suitable for a reference group." },
+      { anchor: "in good health", answer: "in good health", type: "prepositional_phrase", phrase: "in good health", explanation: "in good health describes health status." },
+      { anchor: "did not have", answer: "did not have", type: "verb_phrase", phrase: "did not have any problems", explanation: "did not have negates the finding in the history." },
+      { anchor: "in lying position", answer: "in lying position", type: "prepositional_phrase", phrase: "in lying position", explanation: "in lying position describes how blood pressure was measured." },
+      { anchor: "difficult to recognize", answer: "difficult to recognize", type: "collocation", phrase: "difficult to recognize", explanation: "The phrase describes diagnostic difficulty." },
+      { anchor: "sent to the hospital for", answer: "sent to", target: "sent to", type: "verb_phrase", phrase: "sent to the hospital for", explanation: "sent to shows referral or transfer." },
+      { anchor: "positive for", answer: "positive for", target: "positive for", type: "collocation", phrase: "positive for Staphylococcus aureus", explanation: "positive for reports a positive test result." },
+      { anchor: "is started on", answer: "started on", target: "started on", type: "collocation", phrase: "is started on IV antibiotics", explanation: "started on is used for beginning treatment." },
+      { anchor: "at this time", answer: "at this time", type: "prepositional_phrase", phrase: "at this time", explanation: "at this time means currently in the case course." },
+      { anchor: "in the hospital setting", answer: "in the hospital setting", type: "prepositional_phrase", phrase: "in the hospital setting", explanation: "The phrase gives the treatment setting." },
+      { anchor: "in anticipation of", answer: "in anticipation of", type: "collocation", phrase: "in anticipation of discharge", explanation: "in anticipation of means before an expected event." },
+      { anchor: "diagnosed with", answer: "diagnosed with", type: "collocation", phrase: "diagnosed with", explanation: "Use diagnosed with before a disease." },
+      { anchor: "transferred to", answer: "transferred to", type: "verb_phrase", phrase: "transferred to", explanation: "transferred to gives the destination." },
+      { anchor: "placed in a supine position", answer: "placed in", target: "placed in", type: "collocation", phrase: "placed in a supine position", explanation: "placed in is used for patient positioning." },
+      { anchor: "given general endotracheal anesthesia", answer: "given", type: "verb_phrase", phrase: "given general endotracheal anesthesia", explanation: "given introduces anesthesia or medicine." },
+      { anchor: "entered longitudinally through", answer: "through", type: "preposition", phrase: "entered longitudinally through", explanation: "through gives the surgical route." },
+      { anchor: "was established", answer: "established", type: "verb_phrase", phrase: "circulation was established", explanation: "established means set up or started." },
+      { anchor: "given into the aortic root", answer: "into", type: "preposition", phrase: "given into the aortic root", explanation: "into marks movement into a structure." },
+      { anchor: "for myocardial protection", answer: "for", type: "preposition", phrase: "for myocardial protection", explanation: "for introduces purpose." },
+      { anchor: "proved to be competent", answer: "proved to be", type: "collocation", phrase: "proved to be competent", explanation: "proved to be reports the valve test result." },
+      { anchor: "removed from the heart", answer: "removed from", type: "verb_phrase", phrase: "removed from the heart", explanation: "removed from shows source or origin." },
+      { anchor: "resumed with", answer: "with", type: "preposition", phrase: "resumed with normal sinus rhythm", explanation: "with introduces the resulting rhythm." },
+      { anchor: "counteract the heparin", answer: "counteract", type: "verb_phrase", phrase: "counteract the heparin", explanation: "counteract means neutralize the drug effect." },
+      { anchor: "recovered from", answer: "recovered from", type: "verb_phrase", phrase: "recovered from her surgery", explanation: "recovered from is used after illness or surgery." },
+      { anchor: "sustained a ruptured liver", answer: "sustained", type: "verb_phrase", phrase: "sustained a ruptured liver", explanation: "sustained means suffered an injury." },
+      { anchor: "needed to stop", answer: "needed to", type: "collocation", phrase: "needed to stop", explanation: "needed to expresses clinical necessity." },
+      { anchor: "decreased to", answer: "decreased to", type: "verb_phrase", phrase: "decreased to", explanation: "decreased to gives the final value." },
+      { anchor: "mixed with an anticoagulant", answer: "mixed with", type: "collocation", phrase: "mixed with an anticoagulant", explanation: "mixed with describes combination with another substance." },
+      { anchor: "transfused back to", answer: "transfused back to", type: "verb_phrase", phrase: "transfused back to her", explanation: "transfused back to gives the recipient." },
+      { anchor: "admitted because of", answer: "because of", type: "logic_word", phrase: "admitted because of", explanation: "because of introduces a reason." },
+      { anchor: "suspected as", answer: "suspected as", type: "collocation", phrase: "suspected as", explanation: "suspected as introduces the possible diagnosis." },
+      { anchor: "associated with", answer: "associated with", type: "collocation", phrase: "associated with", explanation: "associated with links a condition and a finding." },
+      { anchor: "admitted to the inpatient unit", answer: "admitted to", type: "collocation", phrase: "admitted to the inpatient unit", explanation: "admitted to gives the destination of admission." },
+      { anchor: "unresponsive to analgesics", answer: "unresponsive to", type: "collocation", phrase: "unresponsive to analgesics", explanation: "unresponsive to means not improved by treatment." },
+      { anchor: "confirmed by a renal ultrasound", answer: "confirmed by", type: "collocation", phrase: "confirmed by a renal ultrasound", explanation: "confirmed by gives the confirming test." },
+      { anchor: "transferred to surgery", answer: "transferred to", type: "verb_phrase", phrase: "transferred to surgery", explanation: "transferred to gives the next clinical step." },
+      { anchor: "admitted in our department due to", answer: "due to", type: "logic_word", phrase: "admitted due to", explanation: "due to introduces a reason." },
+      { anchor: "diagnosed with Cushing", answer: "diagnosed with", type: "collocation", phrase: "diagnosed with Cushing's syndrome", explanation: "diagnosed with introduces the final diagnosis." },
+      { anchor: "due to a right adrenal adenoma", answer: "due to", type: "logic_word", phrase: "due to a right adrenal adenoma", explanation: "due to introduces the cause." },
+      { anchor: "After thorough investigation", answer: "After", type: "logic_word", phrase: "After thorough investigation", explanation: "After marks the sequence before treatment." },
+      { anchor: "control of hypertension", answer: "control of", type: "collocation", phrase: "control of hypertension", explanation: "control of describes managing a condition." },
+      { anchor: "was performed", answer: "performed", type: "verb_phrase", phrase: "adrenalectomy was performed", explanation: "performed reports the operation." },
+      { anchor: "had good clinical recovery", answer: "clinical recovery", type: "collocation", phrase: "good clinical recovery", explanation: "clinical recovery describes improvement after treatment." },
+      { anchor: "along with", answer: "along with", type: "collocation", phrase: "along with incidents of", explanation: "along with adds another symptom or finding." },
+      { anchor: "for the past", answer: "for the past", type: "prepositional_phrase", phrase: "for the past 8 months", explanation: "for the past gives a duration." },
+      { anchor: "within normal limits", answer: "within normal limits", type: "collocation", phrase: "within normal limits", explanation: "within normal limits means in the reference range." },
+      { anchor: "setting the basis for", answer: "basis for", target: "basis for", type: "collocation", phrase: "basis for the diagnosis", explanation: "basis for introduces diagnostic support." },
+      { anchor: "revealed a normal sized", answer: "revealed", type: "verb_phrase", phrase: "ultrasound scan revealed", explanation: "revealed reports an imaging result." },
+      { anchor: "located on", answer: "located on", type: "collocation", phrase: "located on the left lower side", explanation: "located on gives anatomical position." },
+      { anchor: "signifying a possible", answer: "signifying", type: "verb_phrase", phrase: "signifying a possible adenoma", explanation: "signifying means indicating." },
+      { anchor: "taken to the operating room", answer: "taken to", type: "verb_phrase", phrase: "taken to the operating room", explanation: "taken to gives the destination." },
+      { anchor: "performed by", answer: "performed by", type: "collocation", phrase: "performed by a surgeon", explanation: "performed by identifies the operator." },
+      { anchor: "attached on", answer: "attached on", type: "collocation", phrase: "attached on the posterior side", explanation: "attached on gives the attachment site." },
+      { anchor: "sent for pathologic examination", answer: "sent for", type: "collocation", phrase: "sent for pathologic examination", explanation: "sent for gives the requested test." },
+      { anchor: "returned within normal limits", answer: "returned within", type: "verb_phrase", phrase: "returned within normal limits", explanation: "returned within describes normalization." },
+      { anchor: "discharged on the next day", answer: "discharged", type: "verb_phrase", phrase: "discharged on the next day", explanation: "discharged marks leaving the hospital." },
+      { anchor: "reported no further symptoms", answer: "reported", type: "verb_phrase", phrase: "reported no further symptoms", explanation: "reported introduces follow-up symptoms." }
+    ];
+
+    function normalizeClozeAnswer(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[’‘`]/g, "'")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function clozeType(candidate) {
+      const raw = String(candidate.type || "").toLowerCase();
+      if (raw.includes("preposition")) return raw.includes("phrase") ? "prepositional_phrase" : "preposition";
+      if (raw.includes("collocation")) return "collocation";
+      if (raw.includes("verb")) return "verb_phrase";
+      if (raw.includes("logic") || raw.includes("linking")) return "logic_word";
+      return "medical_term";
+    }
+
+    function clozeDistractorType(type) {
+      return type === "prepositional_phrase" ? "preposition" : type;
+    }
+
+    function countWordsBefore(body, index) {
+      const before = body.slice(0, Math.max(0, index));
+      const matches = before.match(/[A-Za-z]+(?:[-'][A-Za-z]+)?|\d+(?:\.\d+)?/g);
+      return matches ? matches.length : 0;
+    }
+
+    function clozeCandidatePoolForCase(item) {
+      const body = caseBodyForCloze(item);
+      const baseCandidates = (item.blankCandidates || []).map((candidate, index) => ({
+        ...candidate,
+        id: candidate.id || `term-${index + 1}`,
+        type: clozeType(candidate),
+        phrase: candidate.phrase || candidate.answer,
+        explanation: candidate.explanation || candidate.reason || candidate.meaning || "Core term from the case passage."
+      }));
+      const languageCandidates = clozeLanguageCandidates(item);
+      const resolved = [...baseCandidates, ...languageCandidates]
+        .map(candidate => {
+          const span = candidate.span || resolveClozeSpan(body, candidate);
+          if (!span) return null;
+          return {
+            ...candidate,
+            span,
+            type: clozeType(candidate),
+            wordIndex: candidate.wordIndex ?? countWordsBefore(body, span.start)
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.span.start - b.span.start);
+
+      const seen = new Set();
+      const unique = resolved.filter(candidate => {
+        const key = `${normalizeClozeAnswer(candidate.answer)}|${candidate.span.start}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return limitClozeCandidatePool(unique, body);
+    }
+
+    function limitClozeCandidatePool(candidates, body) {
+      const maxPoolSize = 30;
+      if (candidates.length <= maxPoolSize) return candidates;
+      const selected = [];
+      const segments = Array.from({ length: 10 }, (_, index) => {
+        const start = Math.floor((body.length * index) / 10);
+        const end = Math.floor((body.length * (index + 1)) / 10);
+        return { start, end };
+      });
+
+      segments.forEach(segment => {
+        const local = candidates
+          .filter(candidate => candidate.span.start >= segment.start && candidate.span.start < segment.end)
+          .filter(candidate => !selected.includes(candidate))
+          .sort((a, b) => typeNeedScore(b, selected) - typeNeedScore(a, selected));
+        local.slice(0, 3).forEach(candidate => {
+          if (selected.length < maxPoolSize) selected.push(candidate);
+        });
+      });
+
+      candidates.forEach(candidate => {
+        if (selected.length < maxPoolSize && !selected.includes(candidate)) selected.push(candidate);
+      });
+
+      return selected.sort((a, b) => a.span.start - b.span.start);
+    }
+
+    function clozeLanguageCandidates(item) {
+      const body = caseBodyForCloze(item);
+      const lowerBody = body.toLowerCase();
+      return CLOZE_LANGUAGE_PATTERNS
+        .filter(pattern => lowerBody.includes(pattern.anchor.toLowerCase()))
+        .map((pattern, index) => ({
+          ...pattern,
+          id: `language-${index + 1}-${normalizeClozeAnswer(pattern.answer).replace(/[^a-z0-9]+/g, "-")}`,
+          type: pattern.type,
+          meaning: pattern.meaning || pattern.explanation,
+          explanation: pattern.explanation,
+          phrase: pattern.phrase || pattern.anchor
+        }));
+    }
+
+    function candidateFitsSelection(candidate, selected, options = {}) {
+      if (selected.some(blank => spansOverlap(blank.span, candidate.span))) return false;
+      if (selected.some(blank => normalizeClozeAnswer(blank.answer) === normalizeClozeAnswer(candidate.answer))) return false;
+      const minGap = options.minGap ?? 8;
+      if (minGap && selected.some(blank => Math.abs(blank.wordIndex - candidate.wordIndex) < minGap)) return false;
+      const type = clozeType(candidate);
+      const typeCounts = selected.reduce((counts, blank) => {
+        const blankType = clozeType(blank);
+        counts[blankType] = (counts[blankType] || 0) + 1;
+        return counts;
+      }, {});
+      if (!options.relaxedTypes) {
+        if ((type === "preposition" || type === "prepositional_phrase") && (typeCounts.preposition || 0) + (typeCounts.prepositional_phrase || 0) >= 2) return false;
+        if (type === "logic_word" && (typeCounts.logic_word || 0) >= 1) return false;
+      }
+      return true;
+    }
+
+    function typeNeedScore(candidate, selected) {
+      const desired = {
+        medical_term: 4,
+        collocation: 3,
+        verb_phrase: 2,
+        preposition: 1,
+        prepositional_phrase: 1,
+        logic_word: 1
+      };
+      const type = clozeType(candidate);
+      const current = selected.filter(blank => clozeType(blank) === type).length;
+      return Math.max(0, (desired[type] || 1) - current);
+    }
+
+    function chooseBestClozeCandidate(candidates, selected) {
+      const shuffled = shuffleArray(candidates);
+      return shuffled
+        .map(candidate => ({
+          candidate,
+          score: typeNeedScore(candidate, selected) * 10 + Math.random()
+        }))
+        .sort((a, b) => b.score - a.score)[0]?.candidate || null;
+    }
+
+    function pickClozeCandidates(item) {
+      const body = caseBodyForCloze(item);
+      const pool = clozeCandidatePoolForCase(item);
+      const selected = [];
+      const segments = Array.from({ length: CLOZE_BLANKS_PER_ATTEMPT }, (_, index) => {
+        const start = Math.floor((body.length * index) / CLOZE_BLANKS_PER_ATTEMPT);
+        const end = Math.floor((body.length * (index + 1)) / CLOZE_BLANKS_PER_ATTEMPT);
+        return { start, end };
+      });
+
+      segments.forEach(segment => {
+        if (selected.length >= CLOZE_BLANKS_PER_ATTEMPT) return;
+        const local = pool.filter(candidate =>
+          candidate.span.start >= segment.start &&
+          candidate.span.start < segment.end &&
+          candidateFitsSelection(candidate, selected)
+        );
+        const choice = chooseBestClozeCandidate(local, selected);
+        if (choice) selected.push(choice);
+      });
+
+      const fillFromPool = (options = {}) => {
+        while (selected.length < CLOZE_BLANKS_PER_ATTEMPT) {
+          const remaining = pool.filter(candidate =>
+            !selected.includes(candidate) &&
+            candidateFitsSelection(candidate, selected, options)
+          );
+          const choice = chooseBestClozeCandidate(remaining, selected);
+          if (!choice) break;
+          selected.push(choice);
+        }
+      };
+
+      fillFromPool();
+      fillFromPool({ minGap: 4 });
+      fillFromPool({ minGap: 0, relaxedTypes: true });
+
+      return selected
+        .slice(0, CLOZE_BLANKS_PER_ATTEMPT)
+        .sort((a, b) => a.span.start - b.span.start);
+    }
+
+    function passageContainsAnswer(body, answer) {
+      const type = normalizeClozeAnswer(answer);
+      if (!type) return false;
+      return normalizeClozeAnswer(body).includes(type);
+    }
+
+    function pickClozeDistractors(item, blanks) {
+      const body = caseBodyForCloze(item);
+      const correct = new Set(blanks.map(blank => normalizeClozeAnswer(blank.answer)));
+      const selected = [];
+      const typeQueue = blanks.map(blank => clozeDistractorType(clozeType(blank)));
+      const fallbackTypes = ["medical_term", "collocation", "verb_phrase", "preposition", "logic_word"];
+
+      function takeFromType(type) {
+        const pool = CLOZE_EXTERNAL_DISTRACTORS[type] || [];
+        const found = shuffleArray(pool).find(option => {
+          const normalized = normalizeClozeAnswer(option);
+          if (!normalized || correct.has(normalized)) return false;
+          if (selected.some(existing => normalizeClozeAnswer(existing) === normalized)) return false;
+          if (type !== "preposition" && passageContainsAnswer(body, option)) return false;
+          return true;
+        });
+        if (found) selected.push(found);
+      }
+
+      while (selected.length < CLOZE_DISTRACTOR_COUNT && typeQueue.length) {
+        takeFromType(typeQueue.shift());
+      }
+      while (selected.length < CLOZE_DISTRACTOR_COUNT) {
+        const before = selected.length;
+        fallbackTypes.forEach(type => {
+          if (selected.length < CLOZE_DISTRACTOR_COUNT) takeFromType(type);
+        });
+        if (selected.length === before) break;
+      }
+      return selected.slice(0, CLOZE_DISTRACTOR_COUNT);
+    }
+
+    function buildClozeWordBank(item, blanks) {
+      const correctOptions = blanks.map(blank => ({ text: blank.answer, correct: true }));
+      const distractors = pickClozeDistractors(item, blanks).map(text => ({ text, correct: false }));
+      return shuffleArray([...correctOptions, ...distractors])
+        .slice(0, CLOZE_WORD_BANK_SIZE)
+        .map((option, index) => ({
+          ...option,
+          label: CLOZE_WORD_BANK_LABELS[index],
+          normalized: normalizeClozeAnswer(option.text)
+        }));
+    }
+
+    function wordBankOptionForAnswer(answer) {
+      return clozeState.wordBank.find(option => option.normalized === normalizeClozeAnswer(answer));
+    }
+
+    function buildCloze(item) {
+      const body = caseBodyForCloze(item);
+      const candidatePool = clozeCandidatePoolForCase(item);
+      const numberedBlanks = pickClozeCandidates(item).map((candidate, index) => ({
+        ...candidate,
+        number: index + 1,
+        question: clozeQuestionText(body, candidate)
+      }));
+      const wordBank = buildClozeWordBank(item, numberedBlanks);
+      const blankedPassage = renderBlankedClozePassage(body, numberedBlanks);
+      clozeState = {
+        caseItem: item,
+        blanks: numberedBlanks,
+        wordBank,
+        candidatePool,
+        submitted: false,
+        showOriginal: false,
+        answers: {},
+        original: body,
+        blankedPassage
+      };
+    }
+
+    function renderClozeWordBank() {
+      return `
+        <section class="cloze-word-bank" aria-label="Word Bank">
+          <div class="cloze-word-bank-title">Word Bank</div>
+          <div class="cloze-word-bank-grid">
+            ${clozeState.wordBank.map(option => `
+              <div class="cloze-word-bank-item">
+                <span class="cloze-word-bank-label">${option.label}</span>
+                <span>${escapeHtml(option.text)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderCloze() {
+      const item = clozeState.caseItem;
+      if (!item) return;
+      $("clozeScope").textContent = `${item.unit} / Case Cloze`;
+      $("clozeTitle").textContent = `${item.caseId} ${item.title}`;
+      $("clozeBlankStat").textContent = clozeState.blanks.length;
+      $("clozeScoreStat").textContent = clozeState.submitted ? clozeScoreText() : "-";
+      $("clozeSourceStat").textContent = `Pool ${clozeState.candidatePool.length} / Bank ${clozeState.wordBank.length}`;
+      $("clozeFeedback").textContent = clozeState.submitted ? "Submitted. Check the review below." : "Choose answers from the shared Word Bank.";
+      $("clozeFeedback").className = `feedback ${clozeState.submitted ? "good" : ""}`;
+      $("submitClozeBtn").disabled = clozeState.submitted || !clozeState.blanks.length;
+      $("showClozeOriginalBtn").textContent = clozeState.showOriginal ? "Hide Original" : "Show Original";
+      $("clozePassage").innerHTML = clozeState.showOriginal
+        ? `<div class="cloze-original">${escapeHtml(clozeState.original)}</div>`
+        : `<div class="cloze-original">${clozeState.blankedPassage}</div>`;
+      $("clozeQuestionList").innerHTML = `${renderClozeWordBank()}${renderClozeQuestions()}`;
+      bindClozeAnswerSelects();
+      $("clozeReviewPanel").hidden = !clozeState.submitted;
+      $("clozeReviewList").innerHTML = clozeState.submitted ? renderClozeReview() : "";
+    }
+
+    function renderClozeQuestions() {
+      return `
+        <section class="cloze-answer-sheet" aria-label="Answer Sheet">
+          ${clozeState.blanks.map(blank => {
+            const selectedLabel = clozeState.answers?.[blank.number] || "";
+            const correctOption = wordBankOptionForAnswer(blank.answer);
+            const ok = clozeState.submitted && selectedLabel === correctOption?.label;
+            const bad = clozeState.submitted && selectedLabel !== correctOption?.label;
+            return `
+              <label class="cloze-answer-row ${ok ? "correct" : ""} ${bad ? "wrong" : ""}" for="cloze-select-${blank.number}">
+                <span class="cloze-answer-number">${blank.number}</span>
+                <select id="cloze-select-${blank.number}" class="cloze-bank-select" data-cloze-select="${blank.number}">
+                  <option value="">Choose...</option>
+                  ${clozeState.wordBank.map(option => `
+                    <option value="${option.label}" ${selectedLabel === option.label ? "selected" : ""}>${option.label}. ${escapeHtml(option.text)}</option>
+                  `).join("")}
+                </select>
+                ${clozeState.submitted ? `<span class="cloze-answer-mark">${ok ? "Correct" : "Review"}</span>` : ""}
+              </label>
+            `;
+          }).join("")}
+        </section>
+      `;
+    }
+
+    function bindClozeAnswerSelects() {
+      document.querySelectorAll("[data-cloze-select]").forEach(select => {
+        const rememberInteraction = () => {
+          lastClozeInteraction = {
+            activeId: select.id,
+            scrollY: window.scrollY
+          };
+        };
+        select.addEventListener("focus", rememberInteraction);
+        select.addEventListener("change", event => {
+          rememberInteraction();
+          const number = event.currentTarget.dataset.clozeSelect;
+          clozeState.answers[number] = event.currentTarget.value;
+        });
+      });
+    }
+
+    function clozeScore() {
+      return clozeState.blanks.reduce((correct, blank) => {
+        const selectedLabel = clozeState.answers?.[blank.number] || "";
+        const correctOption = wordBankOptionForAnswer(blank.answer);
+        return correct + (selectedLabel && selectedLabel === correctOption?.label ? 1 : 0);
+      }, 0);
+    }
+
+    function clozeScoreText() {
+      return `${clozeScore()} / ${clozeState.blanks.length}`;
+    }
+
+    function submitCloze(event) {
+      event?.preventDefault?.();
+      if (!clozeState.caseItem || clozeState.submitted) return;
+      const activeId = document.activeElement?.id || lastClozeInteraction.activeId || "";
+      const scrollY = activeId && activeId === lastClozeInteraction.activeId
+        ? lastClozeInteraction.scrollY
+        : window.scrollY;
+      document.querySelectorAll("[data-cloze-select]").forEach(select => {
+        clozeState.answers[select.dataset.clozeSelect] = select.value;
+      });
+      clozeState.submitted = true;
+      renderCloze();
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollY, behavior: "auto" });
+        if (activeId) document.getElementById(activeId)?.focus?.({ preventScroll: true });
+      });
+    }
+
+    function renderClozeReview() {
+      return clozeState.blanks.map(blank => {
+        const selectedLabel = clozeState.answers?.[blank.number] || "";
+        const selectedOption = clozeState.wordBank.find(option => option.label === selectedLabel);
+        const correctOption = wordBankOptionForAnswer(blank.answer);
+        const ok = selectedLabel === correctOption?.label;
+        const phrase = blank.phrase || blank.question || blank.answer;
+        const explanation = blank.explanation || blank.meaning || "Review the phrase in the original case context.";
+        return `
+          <div class="list-item ${ok ? "cloze-review-good" : "cloze-review-bad"}">
+            <strong>${blank.number}. ${ok ? "Correct" : "Incorrect"}</strong>
+            <span>Correct answer: ${correctOption?.label || "-"} . ${escapeHtml(blank.answer)}</span>
+            <span>Your answer: ${selectedOption ? `${selectedOption.label}. ${escapeHtml(selectedOption.text)}` : "Not answered"}</span>
+            <span>Phrase: ${escapeHtml(phrase)}</span>
+            <span class="muted">Explanation: ${escapeHtml(explanation)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
     $("homeBtn").addEventListener("click", () => showScreen("homeScreen"));
     $("supportToggleBtn").addEventListener("click", () => {
       const panel = $("supportPanel");
@@ -1580,6 +2079,11 @@
     $("themeTranslationNextBtn").addEventListener("click", nextThemeTranslation);
     $("themeTranslationPrevBtn").addEventListener("click", prevThemeTranslation);
     $("newClozeBtn").addEventListener("click", newCloze);
+    ["mousedown", "touchstart"].forEach(eventName => {
+      $("submitClozeBtn").addEventListener(eventName, event => {
+        if (event.cancelable) event.preventDefault();
+      }, { passive: false });
+    });
     $("submitClozeBtn").addEventListener("click", submitCloze);
     $("showClozeOriginalBtn").addEventListener("click", () => {
       if (!clozeState.caseItem) return;
