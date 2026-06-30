@@ -56,6 +56,10 @@
         <div class="label">Case Cloze</div>
         <div id="clozeGrid" class="grid"></div>
       </div>
+      <div class="panel">
+        <div class="label">Full PDF Notes</div>
+        <div id="notePdfGrid" class="grid"></div>
+      </div>
     </section>
 
     <section id="categoryScreen" class="screen">
@@ -76,7 +80,7 @@
           <strong id="positionText"></strong>
         </div>
         <div class="segmented" aria-label="mode">
-          <button data-mode="review" class="active">记忆</button>
+          <button data-mode="review" class="active">对照阅读</button>
           <button data-mode="enToZh">英译中</button>
           <button data-mode="zhToEn">中译英</button>
           <button data-mode="enToEn">英译英</button>
@@ -170,6 +174,11 @@
           <div class="label" id="themeTranslationScope"></div>
           <strong id="themeTranslationPositionText"></strong>
         </div>
+        <div class="segmented" aria-label="theme reading mode">
+          <button data-theme-translation-mode="practice" class="active">英译中</button>
+          <button data-theme-translation-mode="mistakes">错段</button>
+          <button data-theme-translation-mode="compare">对照</button>
+        </div>
       </div>
       <div class="panel stats">
         <div class="stat"><span class="label">总数</span><b id="themeTranslationTotalStat">0</b></div>
@@ -195,6 +204,13 @@
           <button id="themeTranslationResetBtn" class="danger">清空当前 Unit 进度</button>
         </div>
       </div>
+      <div id="themeTranslationMistakePanel" class="panel">
+        <div class="toolbar">
+          <strong>错段本</strong>
+          <button id="themeTranslationClearMistakes">清空当前错段</button>
+        </div>
+        <div id="themeTranslationMistakeList" class="list"></div>
+      </div>
     </section>
 
     <section id="clozeScreen" class="screen">
@@ -213,6 +229,7 @@
       <div class="card study-card">
         <div class="label">完形填空</div>
         <div id="clozePassage" class="cloze-passage"></div>
+        <div id="clozeQuestionList" class="cloze-question-list"></div>
         <div id="clozeFeedback" class="feedback"></div>
       </div>
       <div class="panel toolbar practice-actions">
@@ -250,6 +267,7 @@
   <script src="data/theme-reading-translations.js"></script>
   <script src="data/cloze-cases.js"></script>
   <script src="data/knowledge-cards.js"></script>
+  <script src="data/note-pdfs.js"></script>
   <script src="js/app.js"></script>
 
 </body>

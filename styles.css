@@ -183,6 +183,11 @@
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease, transform .18s ease;
     }
+    a.tile {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+    }
     .tile:hover {
       background: var(--panel);
       border-color: var(--line-strong);
@@ -465,6 +470,60 @@
     }
     .cloze-original {
       line-height: 1.85;
+    }
+    .cloze-question-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+      font-family: var(--font-body);
+    }
+    .cloze-question {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--panel-2);
+    }
+    .cloze-question.correct {
+      border-color: color-mix(in srgb, var(--good) 48%, var(--line));
+    }
+    .cloze-question.wrong {
+      border-color: color-mix(in srgb, var(--bad) 52%, var(--line));
+    }
+    .cloze-question-title {
+      font-weight: 650;
+      line-height: 1.55;
+    }
+    .cloze-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .cloze-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: var(--panel);
+      cursor: pointer;
+      line-height: 1.35;
+    }
+    .cloze-option input {
+      flex: 0 0 auto;
+    }
+    .cloze-answer {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .cloze-answer.good {
+      color: var(--good);
+    }
+    .cloze-answer.bad {
+      color: var(--bad);
     }
     .cloze-blank {
       display: inline-flex;

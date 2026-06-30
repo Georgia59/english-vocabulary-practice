@@ -1,7 +1,39 @@
             const STORAGE_KEY = "english-vocabulary-practice-v1";
     const CASE_STORAGE_KEY = "english-case-translation-v1";
     const THEME_TRANSLATION_STORAGE_KEY = "english-theme-reading-translation-v1";
-    const units = [...new Set(VOCAB.map(item => item.unit))].sort();
+
+    function splitSlashValues(value) {
+      return String(value || "").split(/[\/／]/).map(part => part.trim()).filter(Boolean);
+    }
+
+    function expandEnglishSlashTerm(term) {
+      const parts = splitSlashValues(term);
+      if (parts.length < 2) return [term];
+      const tailWords = parts[parts.length - 1].split(/\s+/).filter(Boolean);
+      const suffix = tailWords.length > 1 ? tailWords.slice(1).join(" ") : "";
+      return parts.map(part => {
+        if (part.includes(" ") || !suffix) return part;
+        return `${part} ${suffix}`;
+      });
+    }
+
+    function expandSlashVocab(items) {
+      return items.flatMap(item => {
+        if (item.category !== "Words & Phrases") return [item];
+        const terms = expandEnglishSlashTerm(item.term);
+        const meanings = splitSlashValues(item.meaning);
+        if (terms.length < 2 || meanings.length !== terms.length) return [item];
+        return terms.map((term, index) => ({
+          ...item,
+          term,
+          meaning: meanings[index],
+          answers: [term]
+        }));
+      });
+    }
+
+    const STUDY_VOCAB = expandSlashVocab(VOCAB);
+    const units = [...new Set(STUDY_VOCAB.map(item => item.unit))].sort();
     const caseUnits = [...new Set(CASES.map(item => item.unit))].sort();
     const themeTranslationUnits = [...new Set(THEME_READING_TRANSLATIONS.map(item => item.unit))].sort();
     const textKnowledgeUnits = [...new Set(KNOWLEDGE_CARDS.filter(item => item.track === "textbook").map(item => item.unit))].sort();
@@ -29,9 +61,11 @@
     };
     let themeTranslationState = {
       unit: themeTranslationUnits[0],
+      mode: "practice",
       index: 0,
       submitted: false,
       lastInput: "",
+      showHints: false,
       pool: []
     };
     let clozeState = {
@@ -223,7 +257,7 @@
     }
 
     function scopedItems() {
-      return VOCAB.filter(item => item.unit === state.unit && item.category === state.category);
+      return STUDY_VOCAB.filter(item => item.unit === state.unit && item.category === state.category);
     }
 
     function hasEnglishExplanation(item) {
@@ -242,7 +276,7 @@
 
     function renderHome() {
       $("unitGrid").innerHTML = units.map(unit => {
-        const count = VOCAB.filter(item => item.unit === unit).length;
+        const count = STUDY_VOCAB.filter(item => item.unit === unit).length;
         return `<button class="tile" data-unit="${unit}"><strong>${unit}</strong><span>${count} 个项目</span></button>`;
       }).join("");
       document.querySelectorAll("[data-unit]").forEach(btn => {
@@ -276,9 +310,11 @@
       document.querySelectorAll("[data-theme-translation-unit]").forEach(btn => {
         btn.addEventListener("click", () => {
           themeTranslationState.unit = btn.dataset.themeTranslationUnit;
+          themeTranslationState.mode = "practice";
           themeTranslationState.index = 0;
           themeTranslationState.submitted = false;
           themeTranslationState.lastInput = "";
+          themeTranslationState.showHints = false;
           refreshThemeTranslationPool();
           showScreen("themeTranslationScreen");
           renderThemeTranslationPractice();
@@ -310,11 +346,17 @@
           startCloze(btn.dataset.clozeCase);
         });
       });
+      $("notePdfGrid").innerHTML = NOTE_PDFS.map(note => `
+        <a class="tile pdf-tile" href="${escapeHtml(note.file)}" target="_blank" rel="noopener">
+          <strong>${escapeHtml(note.title)}</strong>
+          <span>${escapeHtml(note.group)} · PDF</span>
+        </a>
+      `).join("");
     }
 
     function renderCategories() {
       $("categoryGrid").innerHTML = categories.map(category => {
-        const count = VOCAB.filter(item => item.unit === state.unit && item.category === category).length;
+        const count = STUDY_VOCAB.filter(item => item.unit === state.unit && item.category === category).length;
         return `<button class="tile" data-category="${category}" ${count ? "" : "disabled"}><strong>${category}</strong><span>${count} 个项目</span></button>`;
       }).join("");
       document.querySelectorAll("[data-category]").forEach(btn => {
@@ -339,6 +381,24 @@
 
     function isWritingMode(mode) {
       return mode === "enToZh" || mode === "zhToEn" || mode === "enToEn" || mode === "mistakes";
+    }
+
+    function allowedModesForCurrentCategory() {
+      if (state.category === "Words & Phrases") return ["review", "zhToEn"];
+      return ["review", "enToZh", "zhToEn", "enToEn", "correct", "mistakes"];
+    }
+
+    function normalizeCurrentMode() {
+      const allowed = allowedModesForCurrentCategory();
+      if (!allowed.includes(state.mode)) {
+        state.mode = allowed[0];
+        state.index = 0;
+        state.submitted = false;
+        state.lastInput = "";
+      }
+      document.querySelectorAll("[data-mode]").forEach(btn => {
+        btn.hidden = !allowed.includes(btn.dataset.mode);
+      });
     }
 
     function normalizeAnswer(value) {
@@ -388,6 +448,7 @@
     }
 
     function renderPractice() {
+      normalizeCurrentMode();
       document.querySelectorAll("[data-mode]").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === state.mode));
       $("currentScope").textContent = `${state.unit} / ${state.category}`;
       refreshPool();
@@ -604,14 +665,6 @@
       updateStats();
       renderMistakes();
 
-      /* On mobile + correct answer: auto-advance after a short delay */
-      if (isMobile && ok) {
-        setTimeout(() => {
-          if (state.submitted) {
-            nextItem();
-          }
-        }, 600);
-      }
     }
 
     function nextItem() {
@@ -930,8 +983,14 @@
       return THEME_READING_TRANSLATIONS.filter(item => item.unit === themeTranslationState.unit);
     }
 
+    function activeThemeTranslations() {
+      const base = scopedThemeTranslations();
+      if (themeTranslationState.mode !== "mistakes") return base;
+      return base.filter(item => themeTranslationProgress[themeTranslationKeyOf(item)]?.wrong);
+    }
+
     function refreshThemeTranslationPool() {
-      themeTranslationState.pool = scopedThemeTranslations();
+      themeTranslationState.pool = activeThemeTranslations();
       if (themeTranslationState.index >= themeTranslationState.pool.length) themeTranslationState.index = 0;
     }
 
@@ -956,6 +1015,14 @@
       saveThemeTranslationProgress();
     }
 
+    function setThemeTranslationWrong(item, wrong) {
+      const key = themeTranslationKeyOf(item);
+      const row = themeTranslationProgress[key] || { seen: 0, good: 0, wrong: false, last: "", level: "" };
+      row.wrong = wrong;
+      themeTranslationProgress[key] = row;
+      saveThemeTranslationProgress();
+    }
+
     function updateThemeTranslationStats() {
       const items = scopedThemeTranslations();
       let seen = 0, good = 0, wrong = 0;
@@ -971,9 +1038,39 @@
       $("themeTranslationWrongStat").textContent = wrong;
     }
 
+    function renderThemeTranslationMistakes() {
+      const wrongItems = scopedThemeTranslations().filter(item => themeTranslationProgress[themeTranslationKeyOf(item)]?.wrong);
+      $("themeTranslationMistakeList").innerHTML = wrongItems.length ? wrongItems.map(item => `
+        <div class="list-item">
+          <strong>${escapeHtml(item.english)}</strong>
+          <span>${escapeHtml(item.translation)}</span>
+        </div>
+      `).join("") : `<div class="muted">暂无错段</div>`;
+    }
+
+    function themeTranslationHints(item) {
+      const terms = [];
+      const sourceText = `${item.heading || ""} ${item.english || ""}`;
+      const candidates = sourceText.match(/\b[A-Z][A-Za-z-]{4,}\b|\b[a-z][A-Za-z-]{7,}\b/g) || [];
+      candidates.forEach(term => {
+        const clean = term.replace(/[.,;:()]/g, "");
+        if (!terms.includes(clean) && !["However", "Therefore", "Although", "Because"].includes(clean)) terms.push(clean);
+      });
+      return terms.slice(0, 8);
+    }
+
+    function renderThemeTranslationHints(item) {
+      if (!themeTranslationState.submitted && themeTranslationState.mode !== "compare") return "";
+      const terms = themeTranslationHints(item);
+      const termHtml = terms.length ? terms.map(term => `<span class="keyword">${escapeHtml(term)}</span>`).join("") : `<span class="muted">暂无自动提取要点</span>`;
+      return `<div class="keyword-panel"><div class="keyword-title">翻译要点</div><div class="keywords">${termHtml}</div></div>`;
+    }
+
     function renderThemeTranslationPractice() {
+      document.querySelectorAll("[data-theme-translation-mode]").forEach(btn => btn.classList.toggle("active", btn.dataset.themeTranslationMode === themeTranslationState.mode));
       refreshThemeTranslationPool();
       updateThemeTranslationStats();
+      renderThemeTranslationMistakes();
       const item = currentThemeTranslation();
       $("themeTranslationScope").textContent = `${themeTranslationState.unit} / Theme Reading Translation`;
       $("themeTranslationPositionText").textContent = themeTranslationState.pool.length ? `${themeTranslationState.index + 1} / ${themeTranslationState.pool.length}` : "0 / 0";
@@ -984,10 +1081,10 @@
       $("themeTranslationGoodBtn").disabled = !item || !themeTranslationState.submitted;
       $("themeTranslationWeakBtn").disabled = !item || !themeTranslationState.submitted;
       $("themeTranslationMainBtn").hidden = themeTranslationState.submitted;
-      $("themeTranslationNextBtn").hidden = themeTranslationState.submitted;
+      $("themeTranslationNextBtn").hidden = themeTranslationState.submitted || themeTranslationState.mode === "compare";
       if (!item) {
         $("themeTranslationPromptLabel").textContent = "没有可练习的段落";
-        $("themeTranslationEnglish").textContent = "这个 Unit 暂无 Theme Reading 翻译内容";
+        $("themeTranslationEnglish").textContent = themeTranslationState.mode === "mistakes" ? "当前没有错段" : "这个 Unit 暂无 Theme Reading 翻译内容";
         $("themeTranslationAnswerArea").innerHTML = "";
         $("themeTranslationMainBtn").disabled = true;
         $("themeTranslationMainBtn").hidden = false;
@@ -995,18 +1092,41 @@
         return;
       }
       $("themeTranslationMainBtn").disabled = false;
-      $("themeTranslationPromptLabel").textContent = `${item.heading} / 英译中`;
+      if (!themeTranslationState.submitted) $("themeTranslationMainBtn").hidden = false;
+      $("themeTranslationPromptLabel").textContent = themeTranslationState.mode === "compare" ? `${item.heading} / 对照阅读` : `${item.heading} / 英译中`;
       $("themeTranslationEnglish").textContent = item.english;
+      $("themeTranslationMainBtn").textContent = themeTranslationState.submitted ? "正确" : (themeTranslationState.mode === "compare" ? "下一段" : "提交");
+      if (isMobile && themeTranslationState.submitted && themeTranslationState.mode !== "compare") {
+        const existingTA = $("themeTranslationInput");
+        if (existingTA) {
+          existingTA.readOnly = true;
+          existingTA.style.opacity = "0.7";
+          existingTA.style.minHeight = "70px";
+        }
+        let resultDiv = document.getElementById("mobileThemeTranslationResult");
+        if (!resultDiv) {
+          resultDiv = document.createElement("div");
+          resultDiv.id = "mobileThemeTranslationResult";
+          resultDiv.className = "mobile-inline-result";
+          $("themeTranslationAnswerArea").appendChild(resultDiv);
+        }
+        resultDiv.innerHTML = `
+          <div class="reference user-answer"><strong>你的译文：</strong>${escapeHtml(themeTranslationState.lastInput || "")}</div>
+          <div class="reference"><strong>参考译文：</strong>${escapeHtml(item.translation)}</div>
+          ${renderThemeTranslationHints(item)}
+        `;
+        return;
+      }
       const yourAnswer = themeTranslationState.submitted
         ? `<div class="reference user-answer"><strong>你的译文：</strong>${escapeHtml(themeTranslationState.lastInput || "")}</div>`
         : "";
-      const reference = themeTranslationState.submitted
+      const reference = (themeTranslationState.submitted || themeTranslationState.mode === "compare")
         ? `<div class="reference"><strong>参考译文：</strong>${escapeHtml(item.translation)}</div>`
         : "";
-      const input = themeTranslationState.submitted ? "" : `
+      const input = (themeTranslationState.submitted || themeTranslationState.mode === "compare") ? "" : `
         <textarea id="themeTranslationInput" enterkeyhint="done" autocomplete="off" placeholder="输入你的中文翻译。按回车提交，Shift+Enter 换行。"></textarea>
       `;
-      $("themeTranslationAnswerArea").innerHTML = `${renderThemeTranslationSpeechControls()}${input}${yourAnswer}${reference}`;
+      $("themeTranslationAnswerArea").innerHTML = `${renderThemeTranslationSpeechControls()}${input}${yourAnswer}${reference}${renderThemeTranslationHints(item)}`;
       const textarea = $("themeTranslationInput");
       if (textarea) {
         textarea.addEventListener("keydown", event => {
@@ -1025,6 +1145,7 @@
       const textarea = $("themeTranslationInput");
       themeTranslationState.lastInput = textarea ? textarea.value.trim() : "";
       themeTranslationState.submitted = true;
+      themeTranslationState.showHints = true;
       renderThemeTranslationPractice();
       $("themeTranslationFeedback").textContent = "对照参考译文后自评。";
     }
@@ -1038,6 +1159,7 @@
       themeTranslationState.index = (themeTranslationState.index + 1) % themeTranslationState.pool.length;
       themeTranslationState.submitted = false;
       themeTranslationState.lastInput = "";
+      themeTranslationState.showHints = false;
       renderThemeTranslationPractice();
     }
 
@@ -1047,6 +1169,7 @@
       themeTranslationState.index = (themeTranslationState.index - 1 + themeTranslationState.pool.length) % themeTranslationState.pool.length;
       themeTranslationState.submitted = false;
       themeTranslationState.lastInput = "";
+      themeTranslationState.showHints = false;
       renderThemeTranslationPractice();
     }
 
@@ -1054,6 +1177,8 @@
       const item = currentThemeTranslation();
       if (themeTranslationState.submitted) {
         if (item) recordThemeTranslation(item, "good");
+        nextThemeTranslation();
+      } else if (themeTranslationState.mode === "compare") {
         nextThemeTranslation();
       } else {
         submitThemeTranslation();
@@ -1118,12 +1243,62 @@
     function pickClozeCandidates(item) {
       const body = caseBodyForCloze(item);
       const lowerBody = body.toLowerCase();
-      const candidates = item.blankCandidates
+      const termCandidates = item.blankCandidates
         .map(candidate => ({ ...candidate, index: lowerBody.indexOf(candidate.answer.toLowerCase()) }))
         .filter(candidate => candidate.index >= 0)
         .sort((a, b) => a.index - b.index);
-      const picked = shuffleArray(candidates).slice(0, CLOZE_BLANKS_PER_ATTEMPT);
-      return picked.sort((a, b) => a.index - b.index);
+      const languageCandidates = clozeLanguageCandidates(item);
+      const termCount = Math.min(6, termCandidates.length);
+      const languageCount = Math.min(4, languageCandidates.length);
+      const picked = [
+        ...shuffleArray(termCandidates).slice(0, termCount),
+        ...shuffleArray(languageCandidates).slice(0, languageCount)
+      ];
+      const pool = [...termCandidates, ...languageCandidates].filter(candidate => !picked.includes(candidate));
+      while (picked.length < CLOZE_BLANKS_PER_ATTEMPT && pool.length) {
+        picked.push(pool.shift());
+      }
+      return shuffleArray(picked).slice(0, CLOZE_BLANKS_PER_ATTEMPT);
+    }
+
+    function clozeLanguageCandidates(item) {
+      const body = caseBodyForCloze(item);
+      const patterns = [
+        { anchor: "comes to the clinic with", answer: "with", type: "preposition", meaning: "come with 固定搭配", distractors: ["for", "to", "at"] },
+        { anchor: "has a history of", answer: "of", type: "preposition", meaning: "history of 固定搭配", distractors: ["for", "with", "in"] },
+        { anchor: "positive for", answer: "for", type: "preposition", meaning: "positive for 固定搭配", distractors: ["of", "with", "to"] },
+        { anchor: "started on IV antibiotics", answer: "on", type: "preposition", meaning: "start on medication", distractors: ["in", "with", "at"] },
+        { anchor: "in anticipation of discharge", answer: "in", type: "preposition", meaning: "in anticipation of 固定搭配", distractors: ["on", "at", "for"] },
+        { anchor: "diagnosed with", answer: "with", type: "preposition", meaning: "be diagnosed with", distractors: ["as", "by", "for"] },
+        { anchor: "transferred to", answer: "to", type: "preposition", meaning: "be transferred to", distractors: ["for", "with", "from"] },
+        { anchor: "placed in a supine position", answer: "in", type: "preposition", meaning: "placed in a position", distractors: ["on", "at", "by"] },
+        { anchor: "given into the aortic root", answer: "into", type: "preposition", meaning: "given into", distractors: ["onto", "from", "with"] },
+        { anchor: "counteract the heparin", answer: "counteract", type: "verb", meaning: "抵消/中和", distractors: ["confirm", "conduct", "contract"] },
+        { anchor: "sustained a ruptured liver", answer: "sustained", type: "verb", meaning: "遭受损伤", distractors: ["maintained", "contained", "obtained"] },
+        { anchor: "decreased to", answer: "to", type: "preposition", meaning: "decrease to 降至", distractors: ["by", "from", "with"] },
+        { anchor: "mixed with an anticoagulant", answer: "with", type: "preposition", meaning: "mixed with", distractors: ["by", "to", "from"] },
+        { anchor: "transfused back to her", answer: "to", type: "preposition", meaning: "transfuse back to", distractors: ["for", "with", "on"] },
+        { anchor: "admitted because of", answer: "because of", type: "linking phrase", meaning: "因为", distractors: ["instead of", "according to", "prior to"] },
+        { anchor: "suspected as", answer: "as", type: "preposition", meaning: "be suspected as", distractors: ["for", "with", "to"] },
+        { anchor: "associated with", answer: "with", type: "preposition", meaning: "associated with", distractors: ["to", "from", "by"] },
+        { anchor: "revealed abnormal", answer: "revealed", type: "verb", meaning: "显示/揭示", distractors: ["relieved", "received", "removed"] },
+        { anchor: "admitted to the inpatient unit", answer: "to", type: "preposition", meaning: "be admitted to", distractors: ["for", "with", "by"] },
+        { anchor: "unresponsive to analgesics", answer: "to", type: "preposition", meaning: "unresponsive to", distractors: ["for", "with", "from"] },
+        { anchor: "confirmed by a renal ultrasound", answer: "by", type: "preposition", meaning: "confirmed by", distractors: ["with", "for", "to"] },
+        { anchor: "transferred to surgery", answer: "to", type: "preposition", meaning: "be transferred to", distractors: ["for", "from", "with"] },
+        { anchor: "removed from the renal pelvis", answer: "from", type: "preposition", meaning: "removed from", distractors: ["to", "with", "by"] },
+        { anchor: "admitted in our department due to", answer: "due to", type: "linking phrase", meaning: "由于", distractors: ["as to", "next to", "up to"] },
+        { anchor: "within normal limits", answer: "within", type: "preposition", meaning: "within normal limits", distractors: ["without", "between", "under"] },
+        { anchor: "basis for the diagnosis", answer: "for", type: "preposition", meaning: "basis for", distractors: ["of", "with", "to"] },
+        { anchor: "significant for a giant", answer: "for", type: "preposition", meaning: "significant for", distractors: ["to", "with", "by"] }
+      ];
+      return patterns
+        .filter(pattern => body.toLowerCase().includes(pattern.anchor.toLowerCase()))
+        .map(pattern => ({
+          ...pattern,
+          index: body.toLowerCase().indexOf(pattern.anchor.toLowerCase()),
+          options: shuffleArray([pattern.answer, ...pattern.distractors])
+        }));
     }
 
     function clozeOptionPool(item, correctAnswer) {
@@ -1135,44 +1310,37 @@
 
     function buildCloze(item) {
       const body = caseBodyForCloze(item);
-      const lowerBody = body.toLowerCase();
-      let cursor = 0;
-      const blanks = [];
-      const parts = [];
       const candidates = pickClozeCandidates(item);
-      candidates.forEach((candidate, index) => {
-        const start = lowerBody.indexOf(candidate.answer.toLowerCase(), cursor);
-        if (start < cursor) return;
-        const end = start + candidate.answer.length;
-        parts.push(escapeHtml(body.slice(cursor, start)));
-        const number = blanks.length + 1;
-        const options = shuffleArray([candidate.answer, ...clozeOptionPool(item, candidate.answer)]);
-        blanks.push({ ...candidate, number, options });
-        parts.push(renderClozeBlank(number, candidate, options));
-        cursor = end;
+      const blanks = candidates.map((candidate, index) => {
+        const number = index + 1;
+        const options = candidate.options || shuffleArray([candidate.answer, ...clozeOptionPool(item, candidate.answer)]);
+        return {
+          ...candidate,
+          number: index + 1,
+          options,
+          question: clozeQuestionText(body, candidate)
+        };
       });
-      parts.push(escapeHtml(body.slice(cursor)));
       clozeState = {
         caseItem: item,
         blanks,
         submitted: false,
-        showOriginal: false,
-        passageHtml: parts.join(""),
+        showOriginal: true,
+        answers: {},
         original: body
       };
     }
 
-    function renderClozeBlank(number, candidate, options) {
-      const disabled = clozeState.submitted ? "disabled" : "";
-      const stateClass = clozeState.submitted ? clozeAnswerClass(number, candidate.answer) : "";
-      const optionHtml = options.map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("");
-      return `<span class="cloze-blank ${stateClass}"><span class="cloze-number">${number}</span><select class="cloze-select" data-cloze-number="${number}" ${disabled}><option value="">选择</option>${optionHtml}</select></span>`;
+    function clozeQuestionText(body, candidate) {
+      const sentences = body.match(/[^.!?]+[.!?]/g) || [body];
+      const target = candidate.anchor || candidate.answer;
+      const sentence = sentences.find(part => part.toLowerCase().includes(target.toLowerCase())) || body;
+      const escaped = escapeRegExp(candidate.answer);
+      return sentence.replace(new RegExp(escaped, "i"), "_____").trim();
     }
 
-    function clozeAnswerClass(number, answer) {
-      const select = document.querySelector(`[data-cloze-number="${number}"]`);
-      if (!select) return "";
-      return select.value === answer ? "correct" : "wrong";
+    function escapeRegExp(value) {
+      return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
     function startCloze(caseId) {
@@ -1198,22 +1366,46 @@
       $("clozeBlankStat").textContent = clozeState.blanks.length;
       $("clozeScoreStat").textContent = clozeState.submitted ? clozeScoreText() : "-";
       $("clozeSourceStat").textContent = `题库 ${item.blankCandidates.length}`;
-      $("clozeFeedback").textContent = clozeState.submitted ? "已提交，可在下方核对答案。" : "只挖病例里的核心医学信息，不用普通数字或人口学描述凑数。";
+      $("clozeFeedback").textContent = clozeState.submitted ? "已提交，可在下方核对答案。" : "文章正常阅读，题目在文章下方单独作答。";
       $("clozeFeedback").className = `feedback ${clozeState.submitted ? "good" : ""}`;
       $("submitClozeBtn").disabled = clozeState.submitted || !clozeState.blanks.length;
       $("showClozeOriginalBtn").textContent = clozeState.showOriginal ? "隐藏原文" : "显示原文";
-      $("clozePassage").innerHTML = clozeState.showOriginal
-        ? `<div class="cloze-original">${escapeHtml(clozeState.original)}</div>`
-        : clozeState.passageHtml;
+      $("clozePassage").innerHTML = clozeState.showOriginal ? `<div class="cloze-original">${escapeHtml(clozeState.original)}</div>` : "";
+      $("clozeQuestionList").innerHTML = renderClozeQuestions();
       $("clozeReviewPanel").hidden = !clozeState.submitted;
       $("clozeReviewList").innerHTML = clozeState.submitted ? renderClozeReview() : "";
+    }
+
+    function renderClozeQuestions() {
+      return clozeState.blanks.map(blank => {
+        const selected = clozeState.answers?.[blank.number] || "";
+        const ok = clozeState.submitted && selected === blank.answer;
+        const bad = clozeState.submitted && selected !== blank.answer;
+        const options = blank.options.map((option, index) => {
+          const id = `cloze-${blank.number}-${index}`;
+          return `
+            <label class="cloze-option">
+              <input id="${id}" type="radio" name="cloze-${blank.number}" value="${escapeHtml(option)}" ${selected === option ? "checked" : ""} ${clozeState.submitted ? "disabled" : ""}>
+              <span>${escapeHtml(option)}</span>
+            </label>
+          `;
+        }).join("");
+        const answer = clozeState.submitted ? `<div class="cloze-answer ${ok ? "good" : "bad"}">${ok ? "正确" : `答案：${escapeHtml(blank.answer)}`}</div>` : "";
+        return `
+          <div class="cloze-question ${ok ? "correct" : ""} ${bad ? "wrong" : ""}">
+            <div class="cloze-question-title">${blank.number}. ${escapeHtml(blank.question)}</div>
+            <div class="cloze-options">${options}</div>
+            ${answer}
+          </div>
+        `;
+      }).join("");
     }
 
     function clozeScore() {
       let correct = 0;
       clozeState.blanks.forEach(blank => {
-        const select = document.querySelector(`[data-cloze-number="${blank.number}"]`);
-        if (select?.value === blank.answer) correct += 1;
+        const selected = clozeState.answers?.[blank.number] || "";
+        if (selected === blank.answer) correct += 1;
       });
       return correct;
     }
@@ -1226,34 +1418,17 @@
       if (!clozeState.caseItem || clozeState.submitted) return;
       const answers = {};
       clozeState.blanks.forEach(blank => {
-        const select = document.querySelector(`[data-cloze-number="${blank.number}"]`);
-        answers[blank.number] = select?.value || "";
+        const input = document.querySelector(`input[name="cloze-${blank.number}"]:checked`);
+        answers[blank.number] = input?.value || "";
       });
+      clozeState.answers = answers;
       clozeState.submitted = true;
-      const body = clozeState.original;
-      const lowerBody = body.toLowerCase();
-      let cursor = 0;
-      const parts = [];
-      clozeState.blanks.forEach(blank => {
-        const start = lowerBody.indexOf(blank.answer.toLowerCase(), cursor);
-        if (start < cursor) return;
-        const end = start + blank.answer.length;
-        parts.push(escapeHtml(body.slice(cursor, start)));
-        const selected = answers[blank.number];
-        const ok = selected === blank.answer;
-        const options = blank.options.map(option => `<option value="${escapeHtml(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(option)}</option>`).join("");
-        parts.push(`<span class="cloze-blank ${ok ? "correct" : "wrong"}"><span class="cloze-number">${blank.number}</span><select class="cloze-select" disabled><option value="">选择</option>${options}</select></span>`);
-        cursor = end;
-      });
-      parts.push(escapeHtml(body.slice(cursor)));
-      clozeState.passageHtml = parts.join("");
       renderCloze();
     }
 
     function renderClozeReview() {
       return clozeState.blanks.map(blank => {
-        const select = document.querySelector(`[data-cloze-number="${blank.number}"]`);
-        const selected = select?.value || "";
+        const selected = clozeState.answers?.[blank.number] || "";
         const ok = selected === blank.answer;
         const meaning = blank.meaning ? ` · ${escapeHtml(blank.meaning)}` : "";
         return `<div class="list-item ${ok ? "cloze-review-good" : "cloze-review-bad"}"><strong>${blank.number}. ${escapeHtml(blank.answer)}</strong><span>${escapeHtml(blank.type || "term")}${meaning}</span>${selected && !ok ? `<span class="muted">你的选择：${escapeHtml(selected)}</span>` : ""}</div>`;
@@ -1271,7 +1446,13 @@
     $("backToUnits").addEventListener("click", () => showScreen("homeScreen"));
     $("backFromKnowledgeBtn").addEventListener("click", () => showScreen("homeScreen"));
     $("mainBtn").addEventListener("click", mainAction);
-    $("nextBtn").addEventListener("click", nextItem);
+    $("nextBtn").addEventListener("click", () => {
+      if (isWritingMode(state.mode) && !state.submitted) {
+        submitAnswer();
+        return;
+      }
+      nextItem();
+    });
     $("prevBtn").addEventListener("click", prevItem);
     $("shuffleBtn").addEventListener("click", shufflePool);
     $("caseMainBtn").addEventListener("click", caseMainAction);
@@ -1369,13 +1550,23 @@
         renderCasePractice();
       });
     });
+    document.querySelectorAll("[data-theme-translation-mode]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        themeTranslationState.mode = btn.dataset.themeTranslationMode;
+        themeTranslationState.index = 0;
+        themeTranslationState.submitted = false;
+        themeTranslationState.lastInput = "";
+        themeTranslationState.showHints = false;
+        renderThemeTranslationPractice();
+      });
+    });
     $("clearMistakes").addEventListener("click", () => {
       scopedItems().forEach(item => setWrong(item, false));
       renderPractice();
     });
     $("resetCurrentVocabBtn").addEventListener("click", () => {
       if (!confirm(`确定清空 ${state.unit} 的单词进度？`)) return;
-      VOCAB.filter(item => item.unit === state.unit).forEach(item => {
+      STUDY_VOCAB.filter(item => item.unit === state.unit).forEach(item => {
         delete progress[keyOf(item)];
       });
       saveProgress();
@@ -1387,6 +1578,10 @@
     $("clearCaseMistakes").addEventListener("click", () => {
       scopedCases().forEach(item => setCaseWrong(item, false));
       renderCasePractice();
+    });
+    $("themeTranslationClearMistakes").addEventListener("click", () => {
+      scopedThemeTranslations().forEach(item => setThemeTranslationWrong(item, false));
+      renderThemeTranslationPractice();
     });
     $("resetCurrentCaseBtn").addEventListener("click", () => {
       if (!confirm(`确定清空 ${caseState.unit} 的病例翻译进度？`)) return;
@@ -1406,9 +1601,11 @@
         delete themeTranslationProgress[themeTranslationKeyOf(item)];
       });
       saveThemeTranslationProgress();
+      themeTranslationState.mode = "practice";
       themeTranslationState.index = 0;
       themeTranslationState.submitted = false;
       themeTranslationState.lastInput = "";
+      themeTranslationState.showHints = false;
       renderThemeTranslationPractice();
     });
     $("resetBtn").addEventListener("click", () => {
