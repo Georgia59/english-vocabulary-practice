@@ -1061,50 +1061,8 @@
       `).join("") : `<div class="muted">暂无错段</div>`;
     }
 
-    function themeTranslationHints(item) {
-      const terms = [];
-      const sourceText = `${item.heading || ""} ${item.english || ""}`;
-      const candidates = sourceText.match(/\b[A-Z][A-Za-z-]{4,}\b|\b[a-z][A-Za-z-]{7,}\b/g) || [];
-      candidates.forEach(term => {
-        const clean = term.replace(/[.,;:()]/g, "");
-        if (!terms.includes(clean) && !["However", "Therefore", "Although", "Because"].includes(clean)) terms.push(clean);
-      });
-      return terms.slice(0, 8);
-    }
-
-    function themeTranslationKeywordGroups(item) {
-      if (!item) return [];
-      const data = typeof THEME_READING_KEYWORDS === "undefined" ? null : THEME_READING_KEYWORDS[item.id];
-      const groups = data?.keywordGroups || item.keywordGroups || [];
-      return groups.filter(group => group.terms?.length);
-    }
-
     function renderThemeTranslationHints(item) {
-      if (!themeTranslationState.submitted && themeTranslationState.mode !== "compare") return "";
-      const groups = themeTranslationKeywordGroups(item);
-      if (groups.length) {
-        const groupHtml = groups.map(group => {
-          const english = group.english ? `<div class="keyword-line"><strong>英文：</strong>${escapeHtml(group.english)}</div>` : "";
-          const translation = group.translation ? `<div class="keyword-line"><strong>中文：</strong>${escapeHtml(group.translation)}</div>` : "";
-          const terms = (group.terms || []).map(term => {
-            const pos = term.pos ? ` <span class="keyword-pos">${escapeHtml(term.pos)}</span>` : "";
-            const meaning = term.meaning ? ` ${escapeHtml(term.meaning)}` : "";
-            return `<li><span class="keyword-term">${escapeHtml(term.term)}</span>${pos}${meaning}</li>`;
-          }).join("");
-          return `
-            <div class="keyword-group">
-              <div class="keyword-group-title">${escapeHtml(group.title || "关键词")}</div>
-              ${english}
-              ${translation}
-              <ol class="keyword-list">${terms}</ol>
-            </div>
-          `;
-        }).join("");
-        return `<div class="keyword-panel"><div class="keyword-title">关键词</div><div class="keyword-groups">${groupHtml}</div></div>`;
-      }
-      const terms = themeTranslationHints(item);
-      const termHtml = terms.length ? terms.map(term => `<span class="keyword">${escapeHtml(term)}</span>`).join("") : `<span class="muted">暂无自动提取要点</span>`;
-      return `<div class="keyword-panel"><div class="keyword-title">翻译要点</div><div class="keywords">${termHtml}</div></div>`;
+      return "";
     }
 
     function renderThemeTranslationPractice() {
