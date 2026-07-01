@@ -40,7 +40,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Structure",
-    "english": "The wall of the heart is composed of Pericardial Fibrous cavity pericardium three layers: epicardium, myocardium Myocardium and endocardium. The epicardium is the outer lining of the cardiac Endocardium chambers and is formed by the visceral layer of the serous pericardium. The myocardium is the intermediate layer of the heart and is composed of three discernable layers of muscle that are seen predominantly in the left ventricle Parietal and interventricular septum alone and pericardium include a subepicardial layer, a middle Visceral pericardium (epicardium) concentric layer and a subendocardial layer.",
+    "english": "The wall of the heart is composed of three layers: epicardium, myocardium and endocardium. The epicardium is the outer lining of the cardiac chambers and is formed by the visceral layer of the serous pericardium. The myocardium is the intermediate layer of the heart and is composed of three discernable layers of muscle that are seen predominantly in the left ventricle and interventricular septum alone and include a subepicardial layer, a middle concentric layer and a subendocardial layer.",
     "translation": "心壁由三层组成：心外膜（epicardium）、心肌层（myocardium）和心内膜（endocardium）。心外膜是心腔外表面的被覆，由浆膜心包的脏层形成。心肌层是心壁的中间层，由三层可辨认的肌层构成，这些肌层主要见于左心室和室间隔，包括心外膜下层（subepicardial layer）、中间环形层（middle concentric layer）和心内膜下层（subendocardial layer）。",
     "source": "Theme Reading"
   },
@@ -49,7 +49,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Structure",
-    "english": "The rest of the heart is composed mainly of the subepicardial and Figure 5-2 Layers of heart wall subendocardial layers. The myocardium also contains important structures such as excitable nodal tissue and the conducting system. The endocardium, the innermost layer of the heart, is formed of the endothelium and subendothelial connective tissue.",
+    "english": "The rest of the heart is composed mainly of the subepicardial and subendocardial layers. The myocardium also contains important structures such as excitable nodal tissue and the conducting system. The endocardium, the innermost layer of the heart, is formed of the endothelium and subendothelial connective tissue.",
     "translation": "心脏其余部分主要由心外膜下层和心内膜下层构成。心肌层还含有重要结构，例如具有兴奋性的结组织（nodal tissue）和传导系统（conducting system）。心内膜是心脏最内层，由内皮（endothelium）和内皮下结缔组织（subendothelial connective tissue）构成。",
     "source": "Theme Reading"
   },
@@ -58,7 +58,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Chambers and Valves",
-    "english": "The heart is divided into four distinct chambers with muscular walls of different thickness. The left atrium (LA) and Aorta right atrium (RA) are small, thin-walled chambers located just above the left Pulmonary ventricle (LV) and right ventricle (RV), artery Left atrium respectively. The ventricles are larger Coronary artery thick-walled chambers that perform most Pulmonary of the work. The atria receive blood from valve Aortic Mitral valve valve the venous system and lungs and then Right contract and eject the blood into the atrium ventricles.",
+    "english": "The heart is divided into four distinct chambers with muscular walls of different thickness. The left atrium (LA) and right atrium (RA) are small, thin-walled chambers located just above the left ventricle (LV) and right ventricle (RV), respectively. The ventricles are larger thick-walled chambers that perform most of the work. The atria receive blood from the venous system and lungs and then contract and eject the blood into the ventricles.",
     "translation": "心脏分为四个明确的腔室，其肌壁厚度不同。左心房（left atrium, LA）和右心房（right atrium, RA）是较小、薄壁的腔室，分别位于左心室（left ventricle, LV）和右心室（right ventricle, RV）上方。心室较大、壁较厚，承担大部分泵血工作。心房接受来自静脉系统和肺的血液，随后收缩并将血液射入心室。",
     "source": "Theme Reading"
   },
@@ -67,7 +67,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Chambers and Valves",
-    "english": "The ventricles then pump the Tricuspid Left valve blood throughout the body or into the ventricle lungs. The heart contains four valves Right ventricle and the fibrous skeleton of the heart. The fibrous skeleton, a structure of dense connective tissue that separates the atria from the ventricles, contains the annuli of the four valves, membranous septum, aortic intervalvular, right, and left fibrous trigones. The right trigone and the membranous septum together form the central fibrous body, which is penetrated by the atrioventricular bundle (AV bundle, or bundle of His).",
+    "english": "The ventricles then pump the blood throughout the body or into the lungs. The heart contains four valves and the fibrous skeleton of the heart. The fibrous skeleton, a structure of dense connective tissue that separates the atria from the ventricles, contains the annuli of the four valves, membranous septum, aortic intervalvular, right, and left fibrous trigones. The right trigone and the membranous septum together form the central fibrous body, which is penetrated by the atrioventricular bundle (AV bundle, or bundle of His).",
     "translation": "随后心室将血液泵送至全身或肺部。心脏含有四个瓣膜以及心脏纤维骨架（fibrous skeleton of the heart）。纤维骨架是分隔心房与心室的致密结缔组织结构，包含四个瓣环（annuli）、膜性室间隔（membranous septum）、主动脉瓣间区以及右、左纤维三角（fibrous trigones）。右纤维三角与膜性室间隔共同形成中央纤维体（central fibrous body），房室束（atrioventricular bundle, AV bundle，又称 His 束）穿行其中。",
     "source": "Theme Reading"
   },
@@ -121,8 +121,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Chambers and Valves",
-    "english": "The conduction system consists of sinus node, internodal tracts, AV node, AV (His) bundle, right and left bundle branches and Purkinje fibers. Superior vena cava Ascending aorta Sinoatrial node Internodal pathways Left atrium Right atrium Atrioventricular Chordae tendineae node Atrioventricular bundle Left ventricle (bundle of His) Right ventricle Papillary muscle Right and left bundle branches Purkinje fibers Sinoatrial node and internodal pathways Atrioventricular node and the bundle of His with its branches",
-    "translation": "传导系统包括窦房结（sinus/sinoatrial node）、结间束（internodal tracts）、房室结（AV node）、房室束/His 束（AV/His bundle）、右束支和左束支（right and left bundle branches）以及浦肯野纤维（Purkinje fibers）。图示还包括上腔静脉、升主动脉、左心房、右心房、腱索、左心室、右心室、乳头肌，以及窦房结、结间通路、房室结和 His 束及其分支等结构。",
+    "english": "The conduction system consists of sinus node, internodal tracts, AV node, AV (His) bundle, right and left bundle branches and Purkinje fibers.",
+    "translation": "传导系统包括窦房结（sinus/sinoatrial node）、结间束（internodal tracts）、房室结（AV node）、房室束/His 束（AV/His bundle）、右束支和左束支（right and left bundle branches）以及浦肯野纤维（Purkinje fibers）。",
     "source": "Theme Reading"
   },
   {
@@ -130,7 +130,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Cardiac Cycle",
-    "english": "The cardiac cycle is the sequence of events that occurs in one complete beat of the heart. The pumping phase of the Ventricular systole cycle, also known as systole, occurs when heart muscle contracts. The filling phase, which is known as diastole, occurs when heart muscle relaxes. At the beginning of the cardiac cycle, both atria and ventricles are in diastole.",
+    "english": "The cardiac cycle is the sequence of events that occurs in one complete beat of the heart. The pumping phase of the cycle, also known as systole, occurs when heart muscle contracts. The filling phase, which is known as diastole, occurs when heart muscle relaxes. At the beginning of the cardiac cycle, both atria and ventricles are in diastole.",
     "translation": "心动周期（cardiac cycle）是一次完整心搏中发生的一系列事件。周期中的泵血阶段称为收缩期（systole），发生于心肌收缩时；充盈阶段称为舒张期（diastole），发生于心肌舒张时。在心动周期开始时，心房和心室均处于舒张状态。",
     "source": "Theme Reading"
   },
@@ -139,7 +139,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Cardiac Cycle",
-    "english": "During this time, all the chambers of the Ventricular heart are relaxed and receive diastole blood. The atrioventricular valves are open. Atrial systole follows this phase. During atrial systole, the left and right atria contract at the same time and push blood into the left and right ventricles, respectively.",
+    "english": "During this time, all the chambers of the heart are relaxed and receive blood. The atrioventricular valves are open. Atrial systole follows this phase. During atrial systole, the left and right atria contract at the same time and push blood into the left and right ventricles, respectively.",
     "translation": "此时，心脏所有腔室均处于舒张并接受血液充盈，房室瓣开放。随后进入心房收缩期（atrial systole）。在心房收缩期，左、右心房同时收缩，分别将血液推入左、右心室。",
     "source": "Theme Reading"
   },
@@ -193,7 +193,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Artery",
-    "english": "In developed countries, the two leading causes of death, myocardial infarction and stroke, each may directly result from an arterial system that has been slowly and progressively compromised by years of deterioration. Artery Vein Endothelium Capillary Arteriole Venule Connective tissue Connective Smooth tissue muscle Smooth muscle Endothelium Endothelium Valve Types of Arteries The pulmonary arteries carry deoxygenated blood that has just returned from the body to the heart towards the lungs, where carbon dioxide is exchanged for oxygen. Systemic arteries can be subdivided into two types—muscular and elastic—according to the relative compositions of elastic and muscle tissue in their tunica media as well as their size and the makeup of the internal and external elastic lamina.",
+    "english": "In developed countries, the two leading causes of death, myocardial infarction and stroke, each may directly result from an arterial system that has been slowly and progressively compromised by years of deterioration. The pulmonary arteries carry deoxygenated blood that has just returned from the body to the heart towards the lungs, where carbon dioxide is exchanged for oxygen. Systemic arteries can be subdivided into two types—muscular and elastic—according to the relative compositions of elastic and muscle tissue in their tunica media as well as their size and the makeup of the internal and external elastic lamina.",
     "translation": "在发达国家，两大主要死因——心肌梗死（myocardial infarction）和卒中（stroke）——都可能直接源于动脉系统因多年退变而逐渐、缓慢受损。肺动脉将刚从全身回到心脏的脱氧血（deoxygenated blood）输送至肺，在肺内二氧化碳被交换为氧。体循环动脉可根据中膜（tunica media）内弹性组织和肌组织的相对组成、血管大小以及内外弹性膜（internal/external elastic lamina）的结构，分为肌性动脉（muscular arteries）和弹性动脉（elastic arteries）两类。",
     "source": "Theme Reading"
   },
@@ -238,8 +238,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Vein",
-    "english": "Deep veins are deeper in the body and have corresponding arteries. Pulmonary veins are a set of veins that deliver oxygenated blood from the lungs to the heart. Systemic veins drain the tissues of the body and deliver deoxygenated blood to the heart. Brachiocephalic artery Left common carotid artery Pulmonic valve Left subclavian artery Superior vena cava Aortic arch Pulmonary artery Left pulmonary Right pulmonary artery (branches) artery (branches) Ascending Left aorta pulmonary Right veins pulmonary Left atrium veins Aortic valve Mitral Right (bicuspid) atrium valve Tricuspid valve Left ventricle Right ventricle Inferior vena cava Endocardium Apex Blood high in oxygen Myocardium Interventricular Epicardium Blood low in oxygen septum",
-    "translation": "深静脉位于身体较深部位，并有相应的伴行动脉。肺静脉是一组将肺部含氧血输送至心脏的静脉。体静脉引流全身组织，并将脱氧血输送回心脏。图示结构包括头臂动脉、左颈总动脉、肺动脉瓣、左锁骨下动脉、上腔静脉、主动脉弓、肺动脉、肺静脉、升主动脉、左心房、右心房、二尖瓣、三尖瓣、左心室、右心室、下腔静脉、心内膜、心尖、心肌、室间隔和心外膜等，并区分高氧血与低氧血。",
+    "english": "Deep veins are deeper in the body and have corresponding arteries. Pulmonary veins are a set of veins that deliver oxygenated blood from the lungs to the heart. Systemic veins drain the tissues of the body and deliver deoxygenated blood to the heart.",
+    "translation": "深静脉位于身体较深部位，并有相应的伴行动脉。肺静脉是一组将肺部含氧血输送至心脏的静脉。体静脉引流全身组织，并将脱氧血输送回心脏。",
     "source": "Theme Reading"
   },
   {
@@ -283,7 +283,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit5",
     "unitTitle": "Cardiovascular System I: The Heart and Blood Vessels",
     "heading": "Capillaries",
-    "english": "The term angiogenesis denotes the formation of new capillaries from pre- existing blood vessels.\n\n## Unit6 Cardiovascular System II: The Blood and Blood Circulation\n\nPages: 148-153",
+    "english": "The term angiogenesis denotes the formation of new capillaries from pre-existing blood vessels.",
     "translation": "血管生成（angiogenesis）一词指从既有血管形成新的毛细血管。",
     "source": "Theme Reading"
   },
@@ -328,7 +328,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit6",
     "unitTitle": "Cardiovascular System II: The Blood and Blood Circulation",
     "heading": "Components",
-    "english": "If a sample of blood is spun in a centrifuge, the formed elements, being heavier, are packed down by centrifugal force and the plasma rises to the top. Most of the reddish mass at the bottom of the tube is erythrocyte, or red blood cells, the formed elements that function in oxygen transport. There is a thin, whitish layer called the buffy coat at the junction between the erythrocytes and the plasma. This layer contains the remaining formed elements, leukocytes, the white blood cells that act in various ways to protect the body, Plasma 55% and platelets, cell fragments that help stop bleeding.",
+    "english": "If a sample of blood is spun in a centrifuge, the formed elements, being heavier, are packed down by centrifugal force and the plasma rises to the top. Most of the reddish mass at the bottom of the tube is erythrocyte, or red blood cells, the formed elements that function in oxygen transport. There is a thin, whitish layer called the buffy coat at the junction between the erythrocytes and the plasma. This layer contains the remaining formed elements, leukocytes, the white blood cells that act in various ways to protect the body, and platelets, cell fragments that help stop bleeding.",
     "translation": "如果将血液样本置于离心机中旋转，较重的有形成分会在离心力作用下沉积于管底，而血浆上升至上层。试管底部大部分红色沉积物是红细胞（erythrocytes/red blood cells），即负责氧运输的有形成分。红细胞与血浆交界处有一层薄的灰白色层，称为白细胞血小板层（buffy coat）。该层含有其余有形成分，包括以多种方式保护机体的白细胞（leukocytes/white blood cells），以及帮助止血的细胞碎片——血小板（platelets）。",
     "source": "Theme Reading"
   },
@@ -337,7 +337,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit6",
     "unitTitle": "Cardiovascular System II: The Blood and Blood Circulation",
     "heading": "Components",
-    "english": "Erythrocytes normally account for about 45% of the total Buffy coat <1% (White blood cells and platelets) volume of a blood sample, a percentage known as the Red blood cells 45% hematocrit. White blood cells and platelets contribute less than 1 %, and plasma makes up most of the remaining 55 % of whole blood. Figure 6-1 Composition of whole blood Plasma Plasma, which is approximately 90% water, is the liquid part of the blood. Over 100 different substances are dissolved in this straw-colored fluid.",
+    "english": "Erythrocytes normally account for about 45% of the total volume of a blood sample, a percentage known as the hematocrit. White blood cells and platelets contribute less than 1%, and plasma makes up most of the remaining 55% of whole blood. Plasma, which is approximately 90% water, is the liquid part of the blood. Over 100 different substances are dissolved in this straw-colored fluid.",
     "translation": "红细胞通常约占血液样本总体积的 45%，这一百分比称为血细胞比容（hematocrit）。白细胞和血小板所占比例低于 1%，血浆构成全血剩余约 55% 的大部分。血浆约 90% 为水，是血液的液体部分。该稻草色液体中溶解有 100 多种不同物质。",
     "source": "Theme Reading"
   },
@@ -402,15 +402,6 @@ const THEME_READING_TRANSLATIONS = [
     "heading": "Components",
     "english": "Monocyte Platelets are not cells in the strict sense. They are fragments of bizarre multinucleate cells called megakaryocytes, which pinch off thousands of anucleate platelet “pieces” that quickly seal themselves off from the surrounding fluids. The platelets appear as darkly staining, irregularly shaped bodies scattered among the other blood cells. The normal platelet count in blood is about 300,000/mm3.",
     "translation": "严格意义上说，血小板并不是细胞。它们是形态特殊的多核细胞——巨核细胞（megakaryocytes）的碎片；巨核细胞可脱落出成千上万个无核血小板“片段”，这些片段会迅速与周围液体隔离封闭。血小板在其他血细胞之间表现为深染、形状不规则的小体。正常血小板计数约为 300,000/mm³。",
-    "source": "Theme Reading"
-  },
-  {
-    "id": "Unit6-theme-14",
-    "unit": "Unit6",
-    "unitTitle": "Cardiovascular System II: The Blood and Blood Circulation",
-    "heading": "Components",
-    "english": "Platelets Erythrocytes Platelets A. Platelets seen in a blood smear under the microscope. A megakaryocyte releases platelets.",
-    "translation": "血小板、红细胞、血小板：A. 显微镜下血涂片中可见的血小板。巨核细胞释放血小板。",
     "source": "Theme Reading"
   },
   {
@@ -490,7 +481,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit6",
     "unitTitle": "Cardiovascular System II: The Blood and Blood Circulation",
     "heading": "Checking Circulation",
-    "english": "Blood pressure is usually measured in the brachial artery in the left arm.\n\n## Unit7 The Urinary System\n\nPages: 174-179",
+    "english": "Blood pressure is usually measured in the brachial artery in the left arm.",
     "translation": "血压通常在左臂肱动脉（brachial artery）处测量。",
     "source": "Theme Reading"
   },
@@ -526,8 +517,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Functions of the Urinary System",
-    "english": "Regulation of red blood cell synthesis. The kidneys secrete a hormone, erythropoietin, which regulates the synthesis of red blood cells in bone marrow. 6. The kidneys play an important role in controlling blood levels of Ca2+ by regulating the synthesis of vitamin D. Diaphragm Inferior vena cava Adrenal gland Abdominal aorta Renal artery Right kidney Renal vein Right ureter Common iliac vein Common iliac artery Urinary bladder Prostate gland",
-    "translation": "调节红细胞生成。肾脏分泌促红细胞生成素（erythropoietin, EPO），调节骨髓中红细胞的生成。6. 肾脏还通过调节维生素 D 的合成，在控制血钙 Ca²⁺ 水平方面发挥重要作用。图示结构包括膈肌、下腔静脉、肾上腺、腹主动脉、肾动脉、右肾、肾静脉、右输尿管、髂总静脉、髂总动脉、膀胱和前列腺等。",
+    "english": "Regulation of red blood cell synthesis. The kidneys secrete a hormone, erythropoietin, which regulates the synthesis of red blood cells in bone marrow. The kidneys play an important role in controlling blood levels of Ca2+ by regulating the synthesis of vitamin D.",
+    "translation": "调节红细胞生成。肾脏分泌促红细胞生成素（erythropoietin, EPO），调节骨髓中红细胞的生成。肾脏还通过调节维生素 D 的合成，在控制血钙 Ca2+ 水平方面发挥重要作用。",
     "source": "Theme Reading"
   },
   {
@@ -562,8 +553,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Kidneys",
-    "english": "Under ordinary circumstances, only a portion of the nephron is used. Should one kidney not function, or have to be removed, more nephrons and tubules open up in the second kidney to assume the work of the nonfunctioning or missing kidney. Nephrons Calyx Renal cortex Hilum Renal pelvis Renal medulla Ureter Pyramids of medulla Renal capsule",
-    "translation": "在通常情况下，只有一部分肾单位（nephron）被充分利用。若一侧肾脏不发挥功能或必须切除，另一侧肾脏中更多肾单位和肾小管会开放，以承担失功能或缺失肾脏的工作。图示结构包括肾单位、肾盏（calyx）、肾皮质、肾门、肾盂、肾髓质、输尿管、髓质锥体和肾被膜。",
+    "english": "Under ordinary circumstances, only a portion of the nephron is used. Should one kidney not function, or have to be removed, more nephrons and tubules open up in the second kidney to assume the work of the nonfunctioning or missing kidney.",
+    "translation": "在通常情况下，只有一部分肾单位（nephron）被充分利用。若一侧肾脏不发挥功能或必须切除，另一侧肾脏中更多肾单位和肾小管会开放，以承担失功能或缺失肾脏的工作。",
     "source": "Theme Reading"
   },
   {
@@ -580,7 +571,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Nephron",
-    "english": "The afferent arteriole enters a double-walled hollow capsule, the Bowman’s capsule. Afferent Efferent Glomerulus Glomerular (Bowman) Within the capsule the afferent arteriole arteriole capsule arteriole finely divides, forming a knotty ball called the glomerulus, which contains some 50 separate capillaries. The combination of Distal the Bowman’s capsule and the tubule glomerulus is known as the renal corpuscle. The Bowman’s capsule Proximal tubule sends off a highly convoluted tubular branch referred to as the proximal From renal convoluted tubule. artery To renal The proximal convoluted tubule vein descends into the medulla to form the Peritubular loop of Henle.",
+    "english": "The afferent arteriole enters a double-walled hollow capsule, the Bowman's capsule. Within the capsule the afferent arteriole finely divides, forming a knotty ball called the glomerulus, which contains some 50 separate capillaries. The combination of the Bowman's capsule and the glomerulus is known as the renal corpuscle. The Bowman's capsule sends off a highly convoluted tubular branch referred to as the proximal convoluted tubule. The proximal convoluted tubule descends into the medulla to form the loop of Henle.",
     "translation": "入球小动脉进入一个双层壁的中空囊，即 Bowman 囊（Bowman’s capsule）。在囊内，入球小动脉细分形成一团缠结样毛细血管球，称为肾小球（glomerulus），其中含约 50 条独立毛细血管。Bowman 囊与肾小球合称为肾小体（renal corpuscle）。Bowman 囊发出高度盘曲的管状分支，称为近曲小管（proximal convoluted tubule）。近曲小管下降进入髓质，形成 Henle 袢（loop of Henle）。",
     "source": "Theme Reading"
   },
@@ -589,7 +580,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Nephron",
-    "english": "The loop of Henle has capillaries a straight descending limb, a loop, Ascending and a straight ascending limb.",
+    "english": "The loop of Henle has a straight descending limb, a loop, and a straight ascending limb.",
     "translation": "Henle 袢包括一直行降支、一个袢部和一直行升支。",
     "source": "Theme Reading"
   },
@@ -598,7 +589,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Nephron",
-    "english": "the ascending limb of Henle’s loop loop Descending Collecting limb duct returns to the cortex, it turns into the distal convoluted tubule. Eventually Calyx this convoluted tubule opens into the collecting tubule. Several distal convoluted tubules join to form this single straight collection tubule. The collecting tubule empties into the renal pelvis, then into the ureter.",
+    "english": "As the ascending limb of Henle's loop returns to the cortex, it turns into the distal convoluted tubule. Eventually this convoluted tubule opens into the collecting tubule. Several distal convoluted tubules join to form this single straight collection tubule. The collecting tubule empties into the renal pelvis, then into the ureter.",
     "translation": "当 Henle 袢升支返回皮质后，它转变为远曲小管（distal convoluted tubule）。最终，该曲小管开口于集合小管（collecting tubule）。数条远曲小管汇合形成一条直行集合小管。集合小管将尿液排入肾盂，随后进入输尿管。",
     "source": "Theme Reading"
   },
@@ -643,7 +634,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Nephron",
-    "english": "Hormones regulate the process of active transport by which ions like sodium and phosphorus are reabsorbed. Secretion is the final step in the process of Arteriole Arteriole urine formation. Some substances move directly Glomerulus from the blood in capillaries around the distal and Glomerulus collecting tubules into those tubules. Secretion of capsule hydrogen ions via this process is part of the body’s mechanism for maintaining proper pH, or acid-base GLOMERULAR balance.",
+    "english": "Hormones regulate the process of active transport by which ions like sodium and phosphorus are reabsorbed. Secretion is the final step in the process of urine formation. Some substances move directly from the blood in capillaries around the distal and collecting tubules into those tubules. Secretion of hydrogen ions via this process is part of the body's mechanism for maintaining proper pH, or acid-base balance.",
     "translation": "激素调节主动转运（active transport）过程，使钠、磷等离子被重吸收。分泌（secretion）是尿液形成过程的最后一步。某些物质从远端小管和集合小管周围毛细血管中的血液直接进入这些小管。通过这一过程分泌氢离子，是机体维持适当 pH 或酸碱平衡机制的一部分。",
     "source": "Theme Reading"
   },
@@ -652,8 +643,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Nephron",
-    "english": "More ions are secreted when the blood is FILTRATION (water,sugar, TUBULAR acidic, less when it is alkaline. wastes,salts) REABSORPTION (water,sugar, Potassium ions, calcium ions and ammonia also Renal tubule sodium) are secreted at this stage, as are some medications. The kidney is considered a homeostatic organ,",
-    "translation": "当血液呈酸性时，分泌的离子较多；当血液呈碱性时，分泌较少。在这一阶段，钾离子、钙离子和氨也被分泌，某些药物也可经此途径分泌。肾脏被认为是稳态器官（homeostatic organ）。",
+    "english": "More ions are secreted when the blood is acidic, less when it is alkaline. Potassium ions, calcium ions and ammonia also are secreted at this stage, as are some medications.",
+    "translation": "当血液呈酸性时，分泌的离子较多；当血液呈碱性时，分泌较少。在这一阶段，钾离子、钙离子和氨也被分泌，某些药物也可经此途径分泌。",
     "source": "Theme Reading"
   },
   {
@@ -661,8 +652,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Capillaries",
-    "english": "one that helps maintain the chemical composition TUBULAR of the blood within strict limits. It does this partly SECRETION (acids,potassium, by stepping up secretion of substances such as drugs) potassium and calcium when concentrations are high and by increasing reabsorption and reducing Collecting tubule Venule to renal pelvis secretion when levels are low. URINE The urine created by this process then passes 95% water, 5% wastes (urea,creatinine), to the central part of the kidney called the pelvis, salts, acids, drugs where it flows into the ureters and then the bladder.",
-    "translation": "肾脏有助于将血液化学组成维持在严格范围内。它的一部分作用方式是：当钾、钙等物质浓度较高时，增强其分泌；当其水平较低时，增加重吸收并减少分泌。通过这一过程形成的尿液随后进入肾脏中央部位——肾盂（pelvis），再流入输尿管，最终进入膀胱。尿液约 95% 为水，5% 为废物（如尿素、肌酐）、盐、酸和药物等。",
+    "english": "The kidney is considered a homeostatic organ, one that helps maintain the chemical composition of the blood within strict limits. It does this partly by stepping up secretion of substances such as potassium and calcium when concentrations are high and by increasing reabsorption and reducing secretion when levels are low. The urine created by this process then passes to the central part of the kidney called the pelvis, where it flows into the ureters and then the bladder.",
+    "translation": "肾脏被认为是稳态器官（homeostatic organ），有助于将血液化学组成维持在严格范围内。它的一部分作用方式是：当钾、钙等物质浓度较高时，增强其分泌；当其水平较低时，增加重吸收并减少分泌。通过这一过程形成的尿液随后进入肾脏中央部位——肾盂（pelvis），再流入输尿管，最终进入膀胱。",
     "source": "Theme Reading"
   },
   {
@@ -684,21 +675,12 @@ const THEME_READING_TRANSLATIONS = [
     "source": "Theme Reading"
   },
   {
-    "id": "Unit7-theme-22",
-    "unit": "Unit7",
-    "unitTitle": "The Urinary System",
-    "heading": "Urinary Bladder",
-    "english": "Smooth Ureter muscle Trigone Openings of ureters Prostate Internal",
-    "translation": "图示结构包括平滑肌、输尿管、膀胱三角（trigone）、输尿管开口、前列腺以及内口等。",
-    "source": "Theme Reading"
-  },
-  {
     "id": "Unit7-theme-23",
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Urethra",
-    "english": "urethral sphincter External urethral sphincter Sphincter Muscles The sphincter muscles refer to the circular muscles that help keep urine from leaking by closing tightly like a rubber band around the opening of the bladder.",
-    "translation": "尿道括约肌、尿道外括约肌和括约肌：括约肌（sphincter muscles）指环形肌肉，它们像橡皮筋一样紧紧闭合在膀胱开口周围，帮助防止尿液漏出。",
+    "english": "The sphincter muscles refer to the circular muscles that help keep urine from leaking by closing tightly like a rubber band around the opening of the bladder.",
+    "translation": "括约肌（sphincter muscles）指环形肌肉，它们像橡皮筋一样紧紧闭合在膀胱开口周围，帮助防止尿液漏出。",
     "source": "Theme Reading"
   },
   {
@@ -706,7 +688,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit7",
     "unitTitle": "The Urinary System",
     "heading": "Urethra",
-    "english": "The urethra is the tube that allows urine to pass outside the body. The brain signals the bladder muscles to tighten, which squeezes urine out of the bladder. At the same time, the brain signals the sphincter muscles to relax to let urine exit the bladder through the urethra. When all the signals occur in the correct order, normal urination occurs.\n\n## Unit8 The Endocrine System\n\nPages: 201-208",
+    "english": "The urethra is the tube that allows urine to pass outside the body. The brain signals the bladder muscles to tighten, which squeezes urine out of the bladder. At the same time, the brain signals the sphincter muscles to relax to let urine exit the bladder through the urethra. When all the signals occur in the correct order, normal urination occurs.",
     "translation": "尿道（urethra）是允许尿液排出体外的管道。大脑向膀胱肌肉发出收缩信号，挤压尿液排出膀胱。与此同时，大脑向括约肌发出舒张信号，使尿液能够经尿道离开膀胱。当所有信号按正确顺序发生时，正常排尿即可完成。",
     "source": "Theme Reading"
   },
@@ -724,7 +706,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Theme Reading",
-    "english": "The Endocrine System A gland is any organ that produces a secretion. Endocrine glands (Figure 8-1), also called ductless glands, are organized groups of tissues which use materials from the blood or lymph to make new compounds called hormones. The products of the endocrine glands were named hormones (Gk. Horman, to urge on, to stir up) because those first discovered had the effect of stimulating physiologic action.",
+    "english": "A gland is any organ that produces a secretion. Endocrine glands, also called ductless glands, are organized groups of tissues which use materials from the blood or lymph to make new compounds called hormones. The products of the endocrine glands were named hormones (Gk. Horman, to urge on, to stir up) because those first discovered had the effect of stimulating physiologic action.",
     "translation": "内分泌系统：腺体（gland）是指任何产生分泌物的器官。内分泌腺（endocrine glands，又称无管腺 ductless glands）是由组织有序组成的结构，它们利用来自血液或淋巴的物质合成称为激素（hormones）的新化合物。内分泌腺的产物被命名为激素（源自希腊语 Horman，意为促进、激发），因为最早发现的这些物质具有刺激生理活动的作用。",
     "source": "Theme Reading"
   },
@@ -733,17 +715,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Theme Reading",
-    "english": "The name is not entirely suitable because some hormones “depress” rather than “excite”, and others still have other functions. Although produced in extremely small quantities—“trace” amounts—they have remarkable effects in the regulation of bodily functions. Pituitary gland Pineal gland Thyroid gland",
-    "translation": "这一名称并不完全合适，因为有些激素并非“兴奋”而是“抑制”，还有一些激素具有其他功能。尽管激素产生量极少，即“痕量”水平，但它们在调节机体功能方面具有显著作用。图示包括垂体（pituitary gland）、松果体（pineal gland）和甲状腺（thyroid gland）。",
-    "source": "Theme Reading"
-  },
-  {
-    "id": "Unit8-theme-04",
-    "unit": "Unit8",
-    "unitTitle": "The Endocrine System",
-    "heading": "Thymus",
-    "english": "Adrenal glands (2) Parathyroid glands (4)",
-    "translation": "图示还包括胸腺（thymus）、肾上腺（adrenal glands，两枚）和甲状旁腺（parathyroid glands，四枚）。",
+    "english": "The name is not entirely suitable because some hormones \"depress\" rather than \"excite\", and others still have other functions. Although produced in extremely small quantities, or \"trace\" amounts, they have remarkable effects in the regulation of bodily functions.",
+    "translation": "这一名称并不完全合适，因为有些激素并非“兴奋”而是“抑制”，还有一些激素具有其他功能。尽管激素产生量极少，即“痕量”水平，但它们在调节机体功能方面具有显著作用。",
     "source": "Theme Reading"
   },
   {
@@ -751,8 +724,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Pancreas",
-    "english": "Ovary (two) Testis (two) in females (testicle) in males There is another type of gland called an exocrine gland, in which the secretions from the gland must go through a duct. This duct then carries the secretion to a body surface or organ. Exocrine glands include the sweat gland, the salivary glands, the lacrimal gland, and the pancreas. In fact, the pancreas performs both as an exocrine gland and an endocrine gland.",
-    "translation": "图示还包括卵巢（ovary，女性两枚）和睾丸（testis/testicle，男性两枚）。另有一种腺体称为外分泌腺（exocrine gland），其分泌物必须经导管排出。导管将分泌物输送至体表或器官。外分泌腺包括汗腺、唾液腺、泪腺和胰腺。事实上，胰腺同时兼具外分泌腺和内分泌腺功能。",
+    "english": "There is another type of gland called an exocrine gland, in which the secretions from the gland must go through a duct. This duct then carries the secretion to a body surface or organ. Exocrine glands include the sweat gland, the salivary glands, the lacrimal gland, and the pancreas. In fact, the pancreas performs both as an exocrine gland and an endocrine gland.",
+    "translation": "另有一种腺体称为外分泌腺（exocrine gland），其分泌物必须经导管排出。导管将分泌物输送至体表或器官。外分泌腺包括汗腺、唾液腺、泪腺和胰腺。事实上，胰腺同时兼具外分泌腺和内分泌腺功能。",
     "source": "Theme Reading"
   },
   {
@@ -769,7 +742,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Pituitary Gland",
-    "english": "The pituitary is divided into two lobes: the larger anterior pituitary lobe is made up of epithelial cells; the smaller posterior pituitary lobe consists primarily of nerve fibers and neuroglial cells that support the nerve fibers. The pituitary gland is known as the master gland of the body because of its major influence on the body’s activities, such as growth, kidney function, birth, milk production, etc. Optic chiasm Hypothalamus Median eminence Pars tuberalis Stalk Anterior lobe Posterior lobe Anterior Pituitary Lobe The anterior pituitary lobe secretes six hormones.",
+    "english": "The pituitary is divided into two lobes: the larger anterior pituitary lobe is made up of epithelial cells; the smaller posterior pituitary lobe consists primarily of nerve fibers and neuroglial cells that support the nerve fibers. The pituitary gland is known as the master gland of the body because of its major influence on the body's activities, such as growth, kidney function, birth, milk production, etc. The anterior pituitary lobe secretes six hormones.",
     "translation": "垂体分为两叶：较大的腺垂体/垂体前叶（anterior pituitary lobe）由上皮细胞构成；较小的神经垂体/垂体后叶（posterior pituitary lobe）主要由神经纤维及支持神经纤维的神经胶质细胞构成。垂体因其对机体活动如生长、肾功能、分娩和泌乳等具有重要影响，被称为“主腺”（master gland）。垂体前叶分泌六种激素。",
     "source": "Theme Reading"
   },
@@ -796,7 +769,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Pituitary Gland",
-    "english": "Follicle-stimulating hormone (FSH) stimulates the growth of the graafian follicle and the production of estrogen in females, and stimulates the production of sperm in males. Luteinizing hormone (LH) stimulates the growth of the graafian follicle, the production of estrogen and the formation of the corpus luteum after ovulation, Hypothalamus which produces progesterone in the female. In males, LH stimulates Neurons that the secretion of the sex hormone produce hormones testosterone from the testes. It is released from posterior pituitary sometimes called the interstitial cell-stimulating hormone (ICSH) because it stimulates interstitial Pituitary stalk cells of the testes to secrete testosterone.",
+    "english": "Follicle-stimulating hormone (FSH) stimulates the growth of the graafian follicle and the production of estrogen in females, and stimulates the production of sperm in males. Luteinizing hormone (LH) stimulates the growth of the graafian follicle, the production of estrogen and the formation of the corpus luteum after ovulation, which produces progesterone in the female. In males, LH stimulates the secretion of the sex hormone testosterone from the testes. It is sometimes called the interstitial cell-stimulating hormone (ICSH) because it stimulates interstitial cells of the testes to secrete testosterone.",
     "translation": "促卵泡激素（follicle-stimulating hormone, FSH）在女性中刺激 Graaf 卵泡生长和雌激素产生，在男性中刺激精子生成。黄体生成素（luteinizing hormone, LH）刺激 Graaf 卵泡生长、雌激素产生以及排卵后黄体形成；黄体在女性中产生孕激素（progesterone）。在男性中，LH 刺激睾丸分泌性激素睾酮（testosterone）。LH 有时也称为间质细胞刺激素（interstitial cell-stimulating hormone, ICSH），因为它刺激睾丸间质细胞分泌睾酮。",
     "source": "Theme Reading"
   },
@@ -805,7 +778,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Pituitary Gland",
-    "english": "Anterior pituitary Posterior Pituitary Lobe The hormones produced by the hypothalamus are stored in the posterior pituitary lobe. Antidiuretic hormone (ADH) is also called vasopressin.The name vasopressin may lead to confusion because it causes little or no vasoconstriction. ADH maintains the water balance by increasing the absorption of water in the kidney tubules. Sometimes drugs called diuretics are used to inhibit the action of ADH.",
+    "english": "The hormones produced by the hypothalamus are stored in the posterior pituitary lobe. Antidiuretic hormone (ADH) is also called vasopressin. The name vasopressin may lead to confusion because it causes little or no vasoconstriction. ADH maintains the water balance by increasing the absorption of water in the kidney tubules. Sometimes drugs called diuretics are used to inhibit the action of ADH.",
     "translation": "垂体后叶：下丘脑产生的激素储存在垂体后叶。抗利尿激素（antidiuretic hormone, ADH）又称加压素（vasopressin）。vasopressin 这一名称可能造成混淆，因为它几乎不引起血管收缩。ADH 通过增加肾小管对水的重吸收来维持水分平衡。有时会使用称为利尿剂（diuretics）的药物抑制 ADH 作用。",
     "source": "Theme Reading"
   },
@@ -814,7 +787,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Pituitary Gland",
-    "english": "The result is an increase in urinary output and a decrease in blood volume, thus decreasing blood pressure. Oxytocin is released during childbirth, causing strong contractions of the uterus and Thyroid milk ejection, or milk “let-down”, from the breasts cartilage in lactating women. Commercial preparations of oxytocin are given under certain conditions to assist in childbirth and to constrict uterine blood vessels following childbirth.",
+    "english": "The result is an increase in urinary output and a decrease in blood volume, thus decreasing blood pressure. Oxytocin is released during childbirth, causing strong contractions of the uterus and milk ejection, or milk \"let-down\", from the breasts in lactating women. Commercial preparations of oxytocin are given under certain conditions to assist in childbirth and to constrict uterine blood vessels following childbirth.",
     "translation": "其结果是尿量增加、血容量减少，从而降低血压。催产素（oxytocin）在分娩过程中释放，引起子宫强烈收缩，并促使哺乳期女性乳房排乳，即“泌乳反射/乳汁射出”（milk let-down）。在某些情况下可给予催产素制剂以协助分娩，并在分娩后收缩子宫血管。",
     "source": "Theme Reading"
   },
@@ -823,7 +796,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Thyroid Gland",
-    "english": "gland The thyroid gland is a butterfly-shaped mass of tissue located in the anterior part of the neck. It lies on either side of the larynx over the trachea. Its general shape is that of the letter H. It is about 2 inches long with two lobes joined by Trachea Nodule strands of thyroid tissue called the isthmus.",
+    "english": "The thyroid gland is a butterfly-shaped mass of tissue located in the anterior part of the neck. It lies on either side of the larynx over the trachea. Its general shape is that of the letter H. It is about 2 inches long with two lobes joined by strands of thyroid tissue called the isthmus.",
     "translation": "甲状腺（thyroid gland）是位于颈前部的一团蝶形组织。它位于喉的两侧，覆盖于气管前方。其整体形状类似字母 H，长约 2 英寸，由两个叶组成，二者由称为峡部（isthmus）的甲状腺组织条索连接。",
     "source": "Theme Reading"
   },
@@ -832,7 +805,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Thyroid Gland",
-    "english": "In place of the isthmus there is often a pyramidal lobe, whose apex points cranially to the Figure 8-4 Thyroid gland embryonic origin of the thyroid at the base of the tongue. The thyroid gland has a rich blood supply. In fact, it has been estimated that about 4 to 5 liters of blood pass through the gland every hour. The thyroid gland secretes three hormones: thyroxine, triiodothyronine and calcitonin.",
+    "english": "In place of the isthmus there is often a pyramidal lobe, whose apex points cranially to the embryonic origin of the thyroid at the base of the tongue. The thyroid gland has a rich blood supply. In fact, it has been estimated that about 4 to 5 liters of blood pass through the gland every hour. The thyroid gland secretes three hormones: thyroxine, triiodothyronine and calcitonin.",
     "translation": "在峡部位置常可见锥状叶（pyramidal lobe），其尖端向颅侧指向甲状腺在舌根部的胚胎起源部位。甲状腺血供丰富。事实上，据估计每小时约有 4–5 L 血液流经甲状腺。甲状腺分泌三种激素：甲状腺素（thyroxine）、三碘甲状腺原氨酸（triiodothyronine）和降钙素（calcitonin）。",
     "source": "Theme Reading"
   },
@@ -868,8 +841,8 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Parathyroid Glands",
-    "english": "As this process continues, calcium leaves the bone and is released into the bloodstream, increasing the calcium blood level. Thus, parathormone and calcitonin have opposite, or antagonistic, effects to one another. (front view) (back view) Parathyroid glands",
-    "translation": "随着这一过程持续进行，钙离开骨组织并释放入血液，使血钙水平升高。因此，甲状旁腺激素和降钙素彼此作用相反，即具有拮抗效应（antagonistic effects）。图示为甲状旁腺的前面观和后面观。",
+    "english": "As this process continues, calcium leaves the bone and is released into the bloodstream, increasing the calcium blood level. Thus, parathormone and calcitonin have opposite, or antagonistic, effects to one another.",
+    "translation": "随着这一过程持续进行，钙离开骨组织并释放入血液，使血钙水平升高。因此，甲状旁腺激素和降钙素彼此作用相反，即具有拮抗效应（antagonistic effects）。",
     "source": "Theme Reading"
   },
   {
@@ -877,7 +850,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Adrenal Glands",
-    "english": "The two adrenal glands are located Adrenal gland on top of each kidney. Each gland has Adrenal gland two parts: the cortex and the medulla. Adrenocorticotropic hormone Kidney (ACTH) from the pituitary glands stimulates the activity of the cortex of the adrenal gland. The hormones secreted by the adrenal cortex are Cortex medulla known as corticoids.",
+    "english": "The two adrenal glands are located on top of each kidney. Each gland has two parts: the cortex and the medulla. Adrenocorticotropic hormone (ACTH) from the pituitary glands stimulates the activity of the cortex of the adrenal gland. The hormones secreted by the adrenal cortex are known as corticoids.",
     "translation": "两侧肾上腺（adrenal glands）位于每个肾脏上方。每个腺体由两部分组成：皮质（cortex）和髓质（medulla）。来自垂体的促肾上腺皮质激素（ACTH）刺激肾上腺皮质活动。肾上腺皮质分泌的激素称为皮质激素（corticoids）。",
     "source": "Theme Reading"
   },
@@ -886,7 +859,7 @@ const THEME_READING_TRANSLATIONS = [
     "unit": "Unit8",
     "unitTitle": "The Endocrine System",
     "heading": "Adrenal Glands",
-    "english": "The corticoids are very effective as anti-inflammatory drugs. Cross section of adrenal gland The cortex secretes three groups of corticoids, each of which is of great importance. Mineralocorticoids—mainly aldosterone, affect the kidney tubules by speeding up the reabsorption of sodium into the blood circulation and increasing the excretion of potassium from the blood. They also speed up the reabsorption of water by the kidneys.",
+    "english": "The corticoids are very effective as anti-inflammatory drugs. The cortex secretes three groups of corticoids, each of which is of great importance. Mineralocorticoids—mainly aldosterone, affect the kidney tubules by speeding up the reabsorption of sodium into the blood circulation and increasing the excretion of potassium from the blood. They also speed up the reabsorption of water by the kidneys.",
     "translation": "皮质激素作为抗炎药非常有效。肾上腺皮质分泌三类重要皮质激素。盐皮质激素（mineralocorticoids）主要为醛固酮（aldosterone），作用于肾小管，加速钠重吸收入血液循环，并增加钾从血液中的排泄。它们还可加速肾脏对水的重吸收。",
     "source": "Theme Reading"
   },
