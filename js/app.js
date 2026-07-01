@@ -528,7 +528,11 @@
       `;
     }
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 768);
+    const isCoarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches || false;
+    const isTouchDevice = isCoarsePointer || navigator.maxTouchPoints > 1 || "ontouchstart" in window;
+    const isIPadOS = /Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || isIPadOS || isTouchDevice;
+    if (isTouchDevice) document.body.classList.add("touch-device");
 
     /* ── Keyboard-open detector (mobile only) ── */
     if (isMobile && window.visualViewport) {
@@ -1993,6 +1997,8 @@
             scrollY: window.scrollY
           };
         };
+        select.addEventListener("pointerdown", rememberInteraction);
+        select.addEventListener("touchstart", rememberInteraction, { passive: true });
         select.addEventListener("focus", rememberInteraction);
         select.addEventListener("change", event => {
           rememberInteraction();
@@ -2079,7 +2085,7 @@
     $("themeTranslationNextBtn").addEventListener("click", nextThemeTranslation);
     $("themeTranslationPrevBtn").addEventListener("click", prevThemeTranslation);
     $("newClozeBtn").addEventListener("click", newCloze);
-    ["mousedown", "touchstart"].forEach(eventName => {
+    ["pointerdown", "mousedown", "touchstart"].forEach(eventName => {
       $("submitClozeBtn").addEventListener(eventName, event => {
         if (event.cancelable) event.preventDefault();
       }, { passive: false });
