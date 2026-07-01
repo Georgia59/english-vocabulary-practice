@@ -387,7 +387,7 @@
     }
 
     function allowedModesForCurrentCategory() {
-      if (state.category === "Words & Phrases") return ["review", "zhToEn"];
+      if (state.category === "Words & Phrases") return ["review", "zhToEn", "mistakes"];
       return ["review", "enToZh", "zhToEn", "enToEn", "correct", "mistakes"];
     }
 
