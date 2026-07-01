@@ -36,8 +36,13 @@
     const units = [...new Set(STUDY_VOCAB.map(item => item.unit))].sort();
     const caseUnits = [...new Set(CASES.map(item => item.unit))].sort();
     const themeTranslationUnits = [...new Set(THEME_READING_TRANSLATIONS.map(item => item.unit))].sort();
-    const textKnowledgeUnits = [...new Set(KNOWLEDGE_CARDS.filter(item => item.track === "textbook").map(item => item.unit))].sort();
-    const writingKnowledgeUnits = [...new Set(KNOWLEDGE_CARDS.filter(item => item.track === "writing").map(item => item.unit))].sort();
+    const KNOWLEDGE_ITEMS = [
+      ...KNOWLEDGE_CARDS,
+      ...(typeof TERM_EXTENSION_CARDS !== "undefined" ? TERM_EXTENSION_CARDS : [])
+    ];
+    const textKnowledgeUnits = [...new Set(KNOWLEDGE_ITEMS.filter(item => item.track === "textbook").map(item => item.unit))].sort();
+    const writingKnowledgeUnits = [...new Set(KNOWLEDGE_ITEMS.filter(item => item.track === "writing").map(item => item.unit))].sort();
+    const termExtensionUnits = [...new Set(KNOWLEDGE_ITEMS.filter(item => item.track === "term-extension").map(item => item.unit))].sort();
     const CLOZE_BLANKS_PER_ATTEMPT = 10;
     const CLOZE_WORD_BANK_SIZE = 15;
     const CLOZE_DISTRACTOR_COUNT = CLOZE_WORD_BANK_SIZE - CLOZE_BLANKS_PER_ATTEMPT;
@@ -330,12 +335,16 @@
         });
       });
       $("textKnowledgeGrid").innerHTML = textKnowledgeUnits.map(unit => {
-        const count = KNOWLEDGE_CARDS.filter(item => item.track === "textbook" && item.unit === unit).length;
+        const count = KNOWLEDGE_ITEMS.filter(item => item.track === "textbook" && item.unit === unit).length;
         return `<button class="tile" data-knowledge-track="textbook" data-knowledge-unit="${unit}"><strong>${unit}</strong><span>${count} 张课文卡片</span></button>`;
       }).join("");
       $("writingKnowledgeGrid").innerHTML = writingKnowledgeUnits.map(unit => {
-        const count = KNOWLEDGE_CARDS.filter(item => item.track === "writing" && item.unit === unit).length;
+        const count = KNOWLEDGE_ITEMS.filter(item => item.track === "writing" && item.unit === unit).length;
         return `<button class="tile" data-knowledge-track="writing" data-knowledge-unit="${unit}"><strong>${unit}</strong><span>${count} 张 Writing 卡片</span></button>`;
+      }).join("");
+      $("termExtensionGrid").innerHTML = termExtensionUnits.map(unit => {
+        const count = KNOWLEDGE_ITEMS.filter(item => item.track === "term-extension" && item.unit === unit).length;
+        return `<button class="tile" data-knowledge-track="term-extension" data-knowledge-unit="${unit}"><strong>${unit}</strong><span>${count} Medical Term Extension</span></button>`;
       }).join("");
       document.querySelectorAll("[data-knowledge-track]").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -1198,21 +1207,30 @@
     }
 
     function scopedKnowledgeCards() {
-      return KNOWLEDGE_CARDS.filter(item => item.track === knowledgeState.track && item.unit === knowledgeState.unit);
+      return KNOWLEDGE_ITEMS.filter(item => item.track === knowledgeState.track && item.unit === knowledgeState.unit);
     }
 
     function renderKnowledgeCards() {
       const cards = scopedKnowledgeCards();
-      const trackLabel = knowledgeState.track === "writing" ? "Writing PPT Knowledge" : "Textbook PPT Knowledge";
+      const trackLabels = {
+        writing: "Writing PPT Knowledge",
+        textbook: "Textbook PPT Knowledge",
+        "term-extension": "Medical Term Extension"
+      };
+      const trackLabel = trackLabels[knowledgeState.track] || "Knowledge";
       $("knowledgeScope").textContent = `${knowledgeState.unit} / ${trackLabel}`;
       $("knowledgeTitle").textContent = knowledgeState.track === "writing" ? "Writing 复习卡片" : "课文复习卡片";
       $("knowledgeTotalStat").textContent = cards.length;
-      $("knowledgeSourceStat").textContent = knowledgeState.track === "writing" ? "Writing PPT" : "Theme + Case PPT";
+      if (knowledgeState.track === "term-extension") $("knowledgeTitle").textContent = "Medical Term Extension";
+      $("knowledgeSourceStat").textContent = knowledgeState.track === "term-extension"
+        ? "Textbook"
+        : (knowledgeState.track === "writing" ? "Writing PPT" : "Theme + Case PPT");
       $("knowledgePdfActions").innerHTML = renderKnowledgePdfActions();
       $("knowledgeList").innerHTML = cards.length ? cards.map(renderKnowledgeCard).join("") : `<div class="panel muted">当前单元暂无知识卡片</div>`;
     }
 
     function knowledgePdfNotes() {
+      if (knowledgeState.track === "term-extension") return [];
       const unitNumber = knowledgeState.unit.replace("Unit", "");
       if (knowledgeState.track === "writing") {
         return NOTE_PDFS.filter(note => note.group === "Writing" && note.title.includes(`Unit ${unitNumber}`));
